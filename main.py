@@ -5,7 +5,7 @@ from hardware_info_module import HardwareInfo
 from monitor_backend import SystemMonitor
 from process_manager import ProcessManager
 def launch_dashboard(current_user=None, db_manager=None):
-    """Launch the main desktop dashboard after successful authentication."""
+    """Launch the main desktop dashboard after successful authentication. only test"""
     root = tk.Tk()
     monitor = SystemMonitor()
     hardware = HardwareInfo()
