@@ -18,7 +18,7 @@ class HardwareInfo:
             }
             cpu_freq = psutil.cpu_freq()
             if cpu_freq:
-                cpu_info['max_frequency'] = round(cpu_freq.max, 2)
+                cpu_info['max_frequency'] = round(cpu_freq.max, 2) #decimal places rounds the figure 
                 cpu_info['min_frequency'] = round(cpu_freq.min, 2)
                 cpu_info['current_frequency'] = round(cpu_freq.current, 2)
 
@@ -33,7 +33,6 @@ class HardwareInfo:
                 'current_frequency': 0
             }
     def get_memory_info(self):
-        """Get RAM information"""
         try:
             mem = psutil.virtual_memory()
             return {
@@ -52,7 +51,6 @@ class HardwareInfo:
                 'total_bytes': 0
             }
     def get_disk_info(self):
-        """Get disk information"""
         try:
             disk_info = {
                 'partitions': [],
@@ -78,7 +76,6 @@ class HardwareInfo:
         except Exception:
             return {'partitions': [], 'total_partitions': 0}
     def get_network_info(self):
-        """Get network adapter information"""
         try:
             network_info = {
                 'adapters': [],
@@ -106,7 +103,7 @@ class HardwareInfo:
         except Exception:
             return {'adapters': [], 'total_adapters': 0}
     def get_system_info(self):
-        """Get operating system information"""
+        
         try:
             return {
                 'os_name': platform.system(),
@@ -126,7 +123,7 @@ class HardwareInfo:
                 'python_version': 'Unknown'
             }
     def get_battery_info(self):
-        """Get battery information (for laptops)"""
+        
         try:
             battery = psutil.sensors_battery()
             if battery is None:
@@ -147,23 +144,8 @@ class HardwareInfo:
             return info
         except Exception:
             return None
-    def get_boot_time(self):
-        """Get system boot time"""
-        try:
-            boot = psutil.boot_time()
-            return {
-                'timestamp': boot,
-                'formatted': datetime.fromtimestamp(boot).strftime("%Y-%m-%d %H:%M:%S"),
-                'uptime_seconds': datetime.now().timestamp() - boot
-            }
-        except Exception:
-            return {
-                'timestamp': 0,
-                'formatted': 'Unknown',
-                'uptime_seconds': 0
-            }
+
     def get_all_hardware_info(self, use_cache=True):
-        """Get all hardware information at once"""
         if use_cache and self._cache and self._cache_time:
             if datetime.now().timestamp() - self._cache_time < self._cache_duration:
                 return self._cache
@@ -174,29 +156,11 @@ class HardwareInfo:
             'network': self.get_network_info(),
             'system': self.get_system_info(),
             'battery': self.get_battery_info(),
-            'boot': self.get_boot_time(),
             'collected_at': datetime.now().isoformat()
         }
         self._cache_time = datetime.now().timestamp()
         return self._cache
-    def get_summary(self):
-        """Get a quick summary"""
-        try:
-            cpu = self.get_cpu_info()
-            memory = self.get_memory_info()
-            system = self.get_system_info()
-            disk = self.get_disk_info()
-            return {
-                'cpu_model': cpu['model'],
-                'cpu_cores': f"{cpu['physical_cores']} cores",
-                'ram_total': f"{memory['total_gb']} GB",
-                'os_name': f"{system['os_name']} {system['os_release']}",
-                'hostname': system['hostname'],
-                'total_disks': disk['total_partitions']
-            }
-        except Exception:
-            return {}
     def clear_cache(self):
-        """Clear cached data"""
+        
         self._cache = {}
         self._cache_time = None

@@ -2,14 +2,13 @@ import os
 import shutil
 import platform
 import subprocess
-from pathlib import Path
 class CleanupManager:
     def __init__(self):
         """Initialize cleanup manager"""
         self.system = platform.system()
         self.temp_locations = self._get_temp_locations()
     def _get_temp_locations(self):
-        """Get temporary file locations based on OS"""
+        
         locations = {
             'Windows Temp': [],
             'User Temp': [],
@@ -35,33 +34,8 @@ class CleanupManager:
             locations['Recycle Bin'] = [
                 'C:\\$Recycle.Bin'
             ]
-        elif self.system == 'Linux':
-            # Linux temp locations
-            locations['System Temp'] = [
-                '/tmp',
-                '/var/tmp'
-            ]
-            locations['User Cache'] = [
-                os.path.join(os.path.expanduser('~'), '.cache')
-            ]
-        elif self.system == 'Darwin':  # macOS
-            # macOS temp locations
-            locations['System Temp'] = [
-                '/tmp',
-                '/var/tmp'
-            ]
-            locations['User Cache'] = [
-                os.path.join(os.path.expanduser('~'), 'Library', 'Caches')
-            ]
         return locations
     def scan_temp_files(self, category=None):
-        """
-        Scan for temporary files
-        Args:
-            category: Specific category to scan (None = all)   
-        Returns:
-            dict: Scan results with file count and size
-        """
         results = {
             'categories': {},
             'total_files': 0,
@@ -106,80 +80,24 @@ class CleanupManager:
         results['total_size_gb'] = round(results['total_size_bytes'] / (1024 ** 3), 2)
         return results
     def open_file_explorer(self, path=None):
-        """
-        Open file explorer at specified path
-        Args:
-            path: Path to open (None = user home directory)
-        Returns:
-            bool: True if successful
-        """
         if path is None:
             path = os.path.expanduser('~')
         try:
             if self.system == 'Windows':
                 os.startfile(path)
-            elif self.system == 'Darwin':  # macOS
-                subprocess.Popen(['open', path])
-            else:  # Linux
-                subprocess.Popen(['xdg-open', path])
             return True
         except Exception as e:
             print(f"Error opening file explorer: {e}")
             return False
     def open_temp_folder(self):
-        """Open system temp folder in file explorer"""
+        
         if self.system == 'Windows':
             temp_path = os.environ.get('TEMP', 'C:\\Windows\\Temp')
         else:
             temp_path = '/tmp'
         return self.open_file_explorer(temp_path)
-    def clean_category(self, category):
-        """
-        Clean files in a specific category
-        Args:
-            category: Category to clean
-        Returns:
-            dict: Results with files deleted and space freed
-        """
-        if category not in self.temp_locations:
-            return {
-                'success': False,
-                'files_deleted': 0,
-                'space_freed_bytes': 0,
-                'space_freed_mb': 0,
-                'errors': ['Invalid category']
-            }
-        files_deleted = 0
-        space_freed = 0
-        errors = []
-        for location in self.temp_locations[category]:
-            if not location or not os.path.exists(location):
-                continue
-            try:
-                for root, dirs, files in os.walk(location):
-                    for file in files:
-                        try:
-                            file_path = os.path.join(root, file)
-                            file_size = os.path.getsize(file_path)
-                            os.remove(file_path)
-                            files_deleted += 1
-                            space_freed += file_size
-                        except (PermissionError, FileNotFoundError, OSError) as e:
-                            errors.append(f"Could not delete {file}: {str(e)}")
-                            continue
-            except (PermissionError, OSError) as e:
-                errors.append(f"Could not access {location}: {str(e)}")
-                continue
-        return {
-            'success': True,
-            'files_deleted': files_deleted,
-            'space_freed_bytes': space_freed,
-            'space_freed_mb': round(space_freed / (1024 ** 2), 2),
-            'space_freed_gb': round(space_freed / (1024 ** 3), 2),
-            'errors': errors[:10]  # Limit errors to first 10
-        }
     def get_disk_space(self):
-        """Get current disk space information"""
+        
         try:
             if self.system == 'Windows':
                 drive = 'C:\\'
@@ -195,52 +113,8 @@ class CleanupManager:
         except Exception as e:
             print(f"Error getting disk space: {e}")
             return None
-    def get_large_files(self, path=None, min_size_mb=100, limit=20):
-        """
-        Find large files on the system
-        Args:
-            path: Path to search (None = user home)
-            min_size_mb: Minimum file size in MB
-            limit: Maximum number of files to return
-        Returns:
-            list: List of large files with details
-        """
-        if path is None:
-            path = os.path.expanduser('~')
-        large_files = []
-        min_size_bytes = min_size_mb * 1024 * 1024
-        try:
-            for root, dirs, files in os.walk(path):
-                # Skip system directories
-                dirs[:] = [d for d in dirs if d not in [
-                    'AppData', 'Application Data', '.git', 'node_modules',
-                    'Library', 'System', 'Windows'
-                ]]
-                for file in files:
-                    try:
-                        file_path = os.path.join(root, file)
-                        file_size = os.path.getsize(file_path)
-                        if file_size >= min_size_bytes:
-                            large_files.append({
-                                'path': file_path,
-                                'name': file,
-                                'size_bytes': file_size,
-                                'size_mb': round(file_size / (1024 ** 2), 2),
-                                'size_gb': round(file_size / (1024 ** 3), 2)
-                            })
-                            if len(large_files) >= limit:
-                                break
-                    except (PermissionError, FileNotFoundError, OSError):
-                        continue
-                if len(large_files) >= limit:
-                    break
-        except Exception as e:
-            print(f"Error finding large files: {e}")
-        # Sort by size (largest first)
-        large_files.sort(key=lambda x: x['size_bytes'], reverse=True)
-        return large_files[:limit]
 def main():
-    """Test cleanup functionality"""
+    
     print("=" * 70)
     print("Cleanup Module Test")
     print("=" * 70)

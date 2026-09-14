@@ -3,11 +3,9 @@ from tkinter import ttk
 import threading
 class ProcessTabMixin:
     def create_process_tab(self):
-        """Create process manager tab."""
         tab = tk.Frame(self.notebook, bg=self.COLORS['bg_dark'])
         self.notebook.add(tab, text='Processes')
 
-        # State used to keep background work controlled and responsive.
         self._process_search_after_id = None
         self._process_request_id = 0
         self._process_loading = False
@@ -328,7 +326,6 @@ class ProcessTabMixin:
         ).pack(side='left', padx=5)
 
     def kill_process(self, pid, name, is_critical):
-        """Kill a process with confirmation."""
         from tkinter import messagebox
 
         if is_critical:

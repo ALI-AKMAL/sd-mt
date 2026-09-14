@@ -64,8 +64,7 @@ class DatabaseManager:
 
         conn.commit()
         conn.close()
-        print('[OK] Database tables ready')
-
+       
     def _migrate(self):
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
@@ -92,11 +91,7 @@ class DatabaseManager:
 
     def register_user(self, username, password, full_name,
                       security_question='', security_answer=''):
-        """
-        Register a new user.
-        security_answer should be passed in already lowercased by the caller
-        so comparisons are case-insensitive.
-        """
+       
         try:
             if not username or not password or not full_name:
                 return False, 'All fields are required', None

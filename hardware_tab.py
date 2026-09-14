@@ -6,7 +6,7 @@ class HardwareTabMixin:
     def create_hardware_tab(self):
         """Create hardware information tab"""
         tab = tk.Frame(self.notebook, bg=self.COLORS['bg_dark'])
-        self.notebook.add(tab, text='💻 Hardware Info')
+        self.notebook.add(tab, text='Hardware Info')
         
         # Top controls
         controls = tk.Frame(tab, bg=self.COLORS['bg_dark'])
@@ -22,12 +22,12 @@ class HardwareTabMixin:
         
         refresh_btn = tk.Button(
             controls,
-            text="🔄 Refresh",
+            text="Refresh",
             font=('Segoe UI', 10, 'bold'),
             bg=self.COLORS['accent'],
             fg=self.COLORS['bg_dark'],
             activebackground=self.COLORS['bg_light'],
-            relief='flat',
+            relief='raised',
             padx=15,
             pady=8,
             cursor='hand2',
@@ -56,12 +56,10 @@ class HardwareTabMixin:
         self.hardware_text.tag_config('header', foreground=self.COLORS['accent'], font=('Consolas', 11, 'bold'), justify='center')
         self.hardware_text.tag_config('label', foreground=self.COLORS['text_dim'] , justify='center')
         self.hardware_text.tag_config('value', foreground=self.COLORS['text'], font=('Consolas', 10, 'bold') , justify='center')
-        
         # Load hardware info
         self.load_hardware_info()
 
     def load_hardware_info(self):
-        """Load hardware information"""
         def load_thread():
             try:
                 info = self.hardware.get_all_hardware_info()
@@ -74,9 +72,8 @@ class HardwareTabMixin:
         thread.start()
 
     def display_hardware_info(self, info):
-        """Display hardware information"""
-        self.hardware_text.delete('1.0', tk.END)
         
+        self.hardware_text.delete('1.0', tk.END)
         def add_line(text, tag='value'):
             self.hardware_text.insert(tk.END, text + '\n', tag)
         
@@ -146,7 +143,7 @@ class HardwareTabMixin:
         self.hardware_text.config(state='disabled')
 
     def refresh_hardware_info(self):
-        """Refresh hardware information"""
+        
         self.hardware.clear_cache()
         self.hardware_text.config(state='normal')
         self.hardware_text.delete('1.0', tk.END)

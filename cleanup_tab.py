@@ -4,7 +4,7 @@ import os
 import threading
 class CleanupTabMixin:
     def create_cleanup_tab(self):
-        """Create cleanup tab"""
+        
         tab = tk.Frame(self.notebook, bg=self.COLORS['bg_dark'])
         self.notebook.add(tab, text='Cleanup')
         # Main container
@@ -138,7 +138,7 @@ class CleanupTabMixin:
         self.load_disk_space()
 
     def load_disk_space(self):
-        """Load and display disk space information"""
+        
         def load_thread():
             try:
                 disk_info = self.cleanup.get_disk_space()
@@ -157,7 +157,7 @@ class CleanupTabMixin:
         thread.start()
 
     def scan_temp_files(self):
-        """Scan for temporary files"""
+        
         self.scan_btn.config(state='disabled', text='Scanning...')
         self.cleanup_text.config(state='normal')
         self.cleanup_text.delete('1.0', tk.END)
@@ -176,7 +176,7 @@ class CleanupTabMixin:
         thread.start()
 
     def display_scan_results(self, results):
-        """Display scan results"""
+        
         self.cleanup_text.config(state='normal')
         self.cleanup_text.delete('1.0', tk.END)
         
@@ -207,7 +207,7 @@ class CleanupTabMixin:
         self.scan_btn.config(state='normal', text='Scan Temp Files')
 
     def display_scan_error(self, error_msg):
-        """Display scan error"""
+        
         self.cleanup_text.config(state='normal')
         self.cleanup_text.delete('1.0', tk.END)
         self.cleanup_text.insert('1.0', f'ERROR: {error_msg}\n')
@@ -215,7 +215,7 @@ class CleanupTabMixin:
         self.scan_btn.config(state='normal', text='Scan Temp Files')
 
     def open_file_manager(self):
-        """Open file manager"""
+        
         success = self.cleanup.open_file_explorer()
         if success:
             self.show_notification("File Manager opened successfully!")
@@ -223,7 +223,7 @@ class CleanupTabMixin:
             self.show_notification("Failed to open File Manager", error=True)
 
     def open_temp_folder(self):
-        """Open temp folder"""
+        
         success = self.cleanup.open_temp_folder()
         if success:
             self.show_notification("Temp folder opened successfully!")
@@ -231,11 +231,11 @@ class CleanupTabMixin:
             self.show_notification("Failed to open Temp folder", error=True)
 
     def show_notification(self, message, error=False):
-        """Show temporary notification"""
+       
         color = self.COLORS['danger'] if error else self.COLORS['success']
         self.status_label.config(text=f" {message}", fg=color)
         
-        # Reset after 3 seconds
+        
         def reset():
             self.status_label.config(text="Monitoring Active", fg=self.COLORS['success'])
         self.root.after(3000, reset)

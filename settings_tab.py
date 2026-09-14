@@ -1,3 +1,4 @@
+from datetime import datetime
 import tkinter as tk
 from tkinter import ttk
 import os
@@ -8,7 +9,6 @@ class SettingsTabMixin:
         """Create settings and preferences tab"""
         tab = tk.Frame(self.notebook, bg=self.COLORS['bg_dark'])
         self.notebook.add(tab, text='⚙️ Settings')
-        
         # Main container with scroll
         canvas = tk.Canvas(tab, bg=self.COLORS['bg_dark'], highlightthickness=0)
         scrollbar = tk.Scrollbar(tab, orient='vertical', command=canvas.yview)
@@ -221,7 +221,7 @@ class SettingsTabMixin:
         
         tk.Label(
             data_content,
-            text="💾 Data Management",
+            text="Data Management",
             font=('Segoe UI', 14, 'bold'),
             bg=self.COLORS['bg_medium'],
             fg=self.COLORS['text']
@@ -234,7 +234,7 @@ class SettingsTabMixin:
         # Export graph data button
         export_btn = tk.Button(
             buttons_frame,
-            text="📊 Export Graph Data",
+            text="Export Graph Data",
             font=('Segoe UI', 10, 'bold'),
             bg=self.COLORS['accent'],
             fg=self.COLORS['bg_dark'],
@@ -246,27 +246,11 @@ class SettingsTabMixin:
             command=self.export_graph_data
         )
         export_btn.pack(side='left', padx=(0, 10))
-        
-        # Save graph image button
-        save_img_btn = tk.Button(
-            buttons_frame,
-            text="📸 Save Graph Images",
-            font=('Segoe UI', 10, 'bold'),
-            bg=self.COLORS['success'],
-            fg=self.COLORS['text'],
-            activebackground=self.COLORS['bg_light'],
-            relief='flat',
-            padx=15,
-            pady=10,
-            cursor='hand2',
-            command=self.save_graph_images
-        )
-        save_img_btn.pack(side='left', padx=(0, 10))
-        
+                
         # Print report button
         print_btn = tk.Button(
             buttons_frame,
-            text="🖨️ Print Report",
+            text="Print Report",
             font=('Segoe UI', 10, 'bold'),
             bg=self.COLORS['warning'],
             fg=self.COLORS['bg_dark'],
@@ -281,8 +265,8 @@ class SettingsTabMixin:
         
         # Clear data button
         clear_btn = tk.Button(
-            data_content,
-            text="🗑️ Clear All Graph Data",
+            buttons_frame,
+            text="Clear All Graph Data",
             font=('Segoe UI', 10, 'bold'),
             bg=self.COLORS['bg_light'],
             fg=self.COLORS['text'],
@@ -297,15 +281,14 @@ class SettingsTabMixin:
         
         tk.Label(
             data_content,
-            text="Export data to CSV, save graphs as images, or print performance reports",
+            text="Export data to CSV, or print performance reports",
             font=('Segoe UI', 9),
             bg=self.COLORS['bg_medium'],
             fg=self.COLORS['text_dim']
         ).pack(anchor='w')
         
-        # === ACCOUNT SETTINGS ===
         account_section = tk.Frame(main, bg=self.COLORS['bg_medium'])
-        account_section.pack(fill='x', pady=(0, 15))
+        account_section.pack(fill='x', pady=(0, 20))
         
         tk.Frame(account_section, bg=self.COLORS['accent'], height=3).pack(fill='x')
         
@@ -314,7 +297,7 @@ class SettingsTabMixin:
         
         tk.Label(
             account_content,
-            text="👤 Account",
+            text="Account",
             font=('Segoe UI', 14, 'bold'),
             bg=self.COLORS['bg_medium'],
             fg=self.COLORS['text']
@@ -329,7 +312,7 @@ class SettingsTabMixin:
         
         tk.Label(
             user_content,
-            text=f"👤 Current User: {os.getlogin() if hasattr(os, 'getlogin') else 'User'}",
+            text=f"Current User: {os.getlogin() if hasattr(os, 'getlogin') else 'User'}",
             font=('Segoe UI', 10),
             bg=self.COLORS['bg_light'],
             fg=self.COLORS['text']
@@ -338,7 +321,7 @@ class SettingsTabMixin:
         import platform
         tk.Label(
             user_content,
-            text=f"💻 System: {platform.system()} {platform.release()}",
+            text=f"System: {platform.system()} {platform.release()}",
             font=('Segoe UI', 10),
             bg=self.COLORS['bg_light'],
             fg=self.COLORS['text']
@@ -347,7 +330,7 @@ class SettingsTabMixin:
         # Logout button
         logout_btn = tk.Button(
             account_content,
-            text="🚪 Logout & Exit",
+            text="Logout & Exit",
             font=('Segoe UI', 11, 'bold'),
             bg=self.COLORS['danger'],
             fg=self.COLORS['text'],
@@ -371,7 +354,7 @@ class SettingsTabMixin:
         
         tk.Label(
             about_content,
-            text="ℹ️ About",
+            text="About",
             font=('Segoe UI', 14, 'bold'),
             bg=self.COLORS['bg_medium'],
             fg=self.COLORS['text']
@@ -423,7 +406,7 @@ class SettingsTabMixin:
         
         save_btn = tk.Button(
             save_frame,
-            text="💾 Save Settings",
+            text="Save Settings",
             font=('Segoe UI', 12, 'bold'),
             bg=self.COLORS['accent'],
             fg=self.COLORS['bg_dark'],
@@ -437,7 +420,6 @@ class SettingsTabMixin:
         save_btn.pack(side='right')
 
     def change_theme(self, theme):
-        """Change application theme"""
         from tkinter import messagebox
         
         result = messagebox.askyesno(
@@ -498,9 +480,7 @@ class SettingsTabMixin:
 
 
     def save_settings(self):
-        """Save current settings and persist to database for logged-in user."""
         from tkinter import messagebox
-
         try:
             self.update_interval = int(self.interval_var.get())
             self.auto_start_monitoring = self.auto_start_var.get()
@@ -528,11 +508,8 @@ class SettingsTabMixin:
         except Exception as e:
             messagebox.showerror('Error', f'Failed to save settings: {e}')
 
-
     def logout_confirm(self):
-        """Confirm logout and exit"""
         from tkinter import messagebox
-        
         result = messagebox.askyesno(
             "Logout & Exit",
             "Are you sure you want to logout and exit the application?\n\nAll unsaved data will be lost.",
@@ -545,13 +522,10 @@ class SettingsTabMixin:
             self.root.destroy()
 
     def export_graph_data(self):
-        """Export graph data to CSV file"""
         from tkinter import filedialog, messagebox
         import csv
         from datetime import datetime
-        
         try:
-            # Ask for save location
             filename = filedialog.asksaveasfilename(
                 defaultextension=".csv",
                 filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
@@ -562,10 +536,8 @@ class SettingsTabMixin:
                 with open(filename, 'w', newline='') as csvfile:
                     writer = csv.writer(csvfile)
                     
-                    # Write header
                     writer.writerow(['Timestamp', 'CPU %', 'RAM %', 'Disk %', 'Download Mbps', 'Upload Mbps'])
                     
-                    # Write data
                     for i in range(len(self.cpu_data)):
                         timestamp = i * 0.5  # seconds
                         writer.writerow([
@@ -587,71 +559,9 @@ class SettingsTabMixin:
         except Exception as e:
             messagebox.showerror("Export Failed", f"Failed to export data:\n{e}")
 
-    def save_graph_images(self):
-        """Save graph images as PNG files"""
-        from tkinter import filedialog, messagebox
-        from datetime import datetime
-        import os
-        
-        try:
-            # Ask for directory
-            directory = filedialog.askdirectory(title="Select folder to save graph images")
-            
-            if directory:
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                saved_files = []
-                
-                # Save each canvas as PostScript then convert to image
-                canvases = [
-                    ('CPU_Graph', self.cpu_canvas),
-                    ('Memory_Graph', self.mem_canvas),
-                    ('Disk_Graph', self.disk_canvas),
-                    ('Network_Graph', self.net_canvas)
-                ]
-                
-                for name, canvas in canvases:
-                    try:
-                        # Generate filename
-                        ps_file = os.path.join(directory, f"{name}_{timestamp}.ps")
-                        png_file = os.path.join(directory, f"{name}_{timestamp}.png")
-                        
-                        # Save as PostScript
-                        canvas.postscript(file=ps_file, colormode='color')
-                        
-                        # Try to convert to PNG if PIL is available
-                        try:
-                            from PIL import Image
-                            img = Image.open(ps_file)
-                            img.save(png_file, 'PNG')
-                            os.remove(ps_file)  # Remove PS file
-                            saved_files.append(png_file)
-                        except ImportError:
-                            # PIL not available, keep PostScript file
-                            saved_files.append(ps_file)
-                    
-                    except Exception as e:
-                        print(f"Failed to save {name}: {e}")
-                
-                if saved_files:
-                    messagebox.showinfo(
-                        "Images Saved",
-                        f"Graph images saved successfully!\n\n"
-                        f"Location: {directory}\n"
-                        f"Files saved: {len(saved_files)}\n\n"
-                        f"Note: Images saved as PostScript (.ps) files.\n"
-                        f"Install Pillow for PNG: pip install Pillow"
-                    )
-                else:
-                    messagebox.showwarning("Save Failed", "No images were saved.")
-        
-        except Exception as e:
-            messagebox.showerror("Save Failed", f"Failed to save images:\n{e}")
-
     def print_performance_report(self):
-        """Generate and print/save performance report"""
         from tkinter import filedialog, messagebox
         from datetime import datetime
-        
         try:
             # Calculate statistics
             cpu_avg = sum(self.cpu_data) / len(self.cpu_data) if self.cpu_data else 0
@@ -673,61 +583,34 @@ class SettingsTabMixin:
             net_up_max = max(self.net_up_data) if self.net_up_data else 0
             
             # Generate report
-            report = f"""
-╔══════════════════════════════════════════════════════════════════════════╗
-║                     SYSTEM PERFORMANCE REPORT                            ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║                                                                          ║
-║  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}               ║
-║  Monitoring Period: Last 30 seconds ({len(self.cpu_data)} data points)   ║
-║                                                                          ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║  CPU USAGE                                                               ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║  Average:    {cpu_avg:6.2f}%                                             ║
-║  Maximum:    {cpu_max:6.2f}%                                             ║
-║  Minimum:    {cpu_min:6.2f}%                                             ║
-║                                                                          ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║  MEMORY USAGE                                                            ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║  Average:    {mem_avg:6.2f}%                                             ║
-║  Maximum:    {mem_max:6.2f}%                                             ║
-║  Minimum:    {mem_min:6.2f}%                                             ║
-║                                                                          ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║  DISK USAGE                                                              ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║  Average:    {disk_avg:6.2f}%                                            ║
-║  Maximum:    {disk_max:6.2f}%                                            ║
-║  Minimum:    {disk_min:6.2f}%                                            ║
-║                                                                          ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║  NETWORK USAGE                                                           ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║  Download:                                                               ║
-║    Average:  {net_down_avg:6.2f} Mbps                                    ║
-║    Peak:     {net_down_max:6.2f} Mbps                                    ║
-║                                                                          ║
-║  Upload:                                                                 ║
-║    Average:  {net_up_avg:6.2f} Mbps                                      ║
-║    Peak:     {net_up_max:6.2f} Mbps                                      ║
-║                                                                          ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║  SYSTEM STATUS                                                           ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║  CPU Status:     {"CRITICAL" if cpu_avg > 80 else "HIGH" if cpu_avg > 50 else "NORMAL":<10}                                                   ║
-║  Memory Status:  {"CRITICAL" if mem_avg > 80 else "HIGH" if mem_avg > 50 else "NORMAL":<10}                                                   ║
-║  Disk Status:    {"CRITICAL" if disk_avg > 90 else "HIGH" if disk_avg > 70 else "NORMAL":<10}                                                   ║
-║  Network Status: {"HEAVY" if net_down_avg + net_up_avg > 50 else "ACTIVE" if net_down_avg + net_up_avg > 10 else "LIGHT":<10}                                                   ║
-║                                                                          ║
-╚══════════════════════════════════════════════════════════════════════════╝
+            
+            report = f"""SYSTEM PERFORMANCE REPORT
+            Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+            Monitoring Period: Last 30 seconds ({len(self.cpu_data)} data points)
 
-Generated by System Monitor - FYP Project
-Team: Ali Mehdi, Bilal Latif, Ali Haider
-Advisor: Prof. M Asif
-"""
-            # Ask where to save
+            CPU USAGE
+             Average: {cpu_avg:.2f}%   Maximum: {cpu_max:.2f}%   Minimum: {cpu_min:.2f}%
+
+            MEMORY USAGE
+            Average: {mem_avg:.2f}%   Maximum: {mem_max:.2f}%   Minimum: {mem_min:.2f}%
+
+            DISK USAGE
+            Average: {disk_avg:.2f}%   Maximum: {disk_max:.2f}%   Minimum: {disk_min:.2f}%
+
+            NETWORK USAGE
+            Download - Average: {net_down_avg:.2f} Mbps   Peak: {net_down_max:.2f} Mbps
+            Upload   - Average: {net_up_avg:.2f} Mbps   Peak: {net_up_max:.2f} Mbps
+
+            SYSTEM STATUS
+            CPU:     {"Critical" if cpu_max > 90 else "High" if cpu_max > 75 else "Normal"}
+            Memory:  {"Critical" if mem_max > 90 else "High" if mem_max > 75 else "Normal"}
+            Disk:    {"Critical" if disk_max > 90 else "High" if disk_max > 75 else "Normal"}
+            Network: {"Critical" if net_down_max > 100 or net_up_max > 100 else "High" if net_down_max > 50 or net_up_max > 50 else "Normal"}
+
+            Generated by System Monitor - FYP Project
+            Team: Ali Mehdi, Bilal Latif, Ali Haider
+            Advisor: Prof. M Asif
+            """
             filename = filedialog.asksaveasfilename(
                 defaultextension=".txt",
                 filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
@@ -740,23 +623,6 @@ Advisor: Prof. M Asif
                     "Report Saved",
                     f"Performance report saved successfully!\n\n"
                     f"File: {filename}\n\n"
-                    f"You can now:\n"
-                    f"• Open it in Notepad\n"
-                    f"• Print it from any text editor\n"
-                    f"• Share it via email"
                 )
-                # Ask if user wants to open the file
-                if messagebox.askyesno("Open File", "Do you want to open the report now?"):
-                    try:
-                        import subprocess
-                        import platform
-                        if platform.system() == 'Windows':
-                            os.startfile(filename)
-                        elif platform.system() == 'Darwin':  # macOS
-                            subprocess.call(['open', filename])
-                        else:  # Linux
-                            subprocess.call(['xdg-open', filename])
-                    except Exception as e:
-                        print(f"Could not open file: {e}")
         except Exception as e:
-            messagebox.showerror("Report Failed", f"Failed to generate report:\n{e}")
+            messagebox.showerror("Report Generation Failed", f"Failed to generate report:\n{e}")

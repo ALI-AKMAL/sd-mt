@@ -3,11 +3,10 @@ from tkinter import ttk
 
 class MonitoringTabMixin:
     def create_monitoring_tab(self):
-
-        """Create real-time monitoring tab with graphs"""
+        
         tab = tk.Frame(self.notebook, bg=self.COLORS['bg_dark'])
         self.notebook.add(tab, text='Live Monitoring')
-        # Scrollable frame
+        
         canvas = tk.Canvas(tab, bg=self.COLORS['bg_dark'], highlightthickness=0)
         scrollbar = tk.Scrollbar(tab, orient='vertical', command=canvas.yview)
         scrollable_frame = tk.Frame(canvas, bg=self.COLORS['bg_dark'])
@@ -20,16 +19,12 @@ class MonitoringTabMixin:
         canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
         canvas.configure(yscrollcommand=scrollbar.set)
         
-        # Enable mouse wheel and trackpad scrolling
-        # Enable mouse wheel and trackpad scrolling (Windows)
         def on_mousewheel(event):
             canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-            # Bind scroll only when cursor is inside canvas
         canvas.bind("<Enter>", lambda e: canvas.bind_all("<MouseWheel>", on_mousewheel))
         canvas.bind("<Leave>", lambda e: canvas.unbind_all("<MouseWheel>"))
         
-        # Store canvas reference for cleanup
         self.monitoring_canvas = canvas
         
         canvas.pack(side='left', fill='both', expand=True)
@@ -42,22 +37,17 @@ class MonitoringTabMixin:
         self.create_network_graph(scrollable_frame)
 
     def create_cpu_graph(self, parent):
-        """Create CPU monitoring section with graph"""
-        # Container
         container = tk.Frame(parent, bg=self.COLORS['bg_dark'])
         container.pack(anchor="w" , padx=130 , pady=30)
         
         cpu_frame = tk.Frame(container, bg=self.COLORS['bg_medium'])
         cpu_frame.pack(fill='x')
         
-        # Border
         tk.Frame(cpu_frame, bg=self.COLORS['accent'], height=3).pack(fill='x')
         
-        # Content
         content = tk.Frame(cpu_frame, bg=self.COLORS['bg_medium'])
         content.pack(fill='both', padx=25, pady=20)
         
-        # Header
         header = tk.Frame(content, bg=self.COLORS['bg_medium'])
         header.pack(fill='x')
         
@@ -72,14 +62,13 @@ class MonitoringTabMixin:
         self.cpu_percent_label = tk.Label(header, text="0.0%", font=('Segoe UI', 28, 'bold'), bg=self.COLORS['bg_medium'], fg=self.COLORS['cpu_color'])
         self.cpu_percent_label.pack(side='right')
         
-        # Graph canvas
         graph_frame = tk.Frame(content, bg=self.COLORS['graph_bg'], relief='flat', bd=1)
         graph_frame.pack(fill='x', pady=(15, 0))
         
-        self.cpu_canvas = tk.Canvas(
+        self.cpu_canvas = tk.Canvas(              #book a place in the screen for the graph
             graph_frame,
             width=850,
-            height=120,
+            height=120,                                     
             bg=self.COLORS['graph_bg'],
             highlightthickness=0
         )
@@ -349,3 +338,4 @@ class MonitoringTabMixin:
         
         canvas.create_line(120, 15, 140, 15, fill=self.COLORS['net_up_color'], width=2, dash=(4, 2))
         canvas.create_text(145, 15, text="Upload", fill=self.COLORS['text'], anchor='w', font=('Segoe UI', 8))
+

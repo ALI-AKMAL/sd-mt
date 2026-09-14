@@ -26,42 +26,24 @@ class SystemMonitorUI(
     MonitoringTabMixin,
     KeyboardTabMixin
 ):
-    """
-    Complete UI with real-time graphs and hardware information
-    """
-    # Color scheme
     COLORS = {
-    # Main surfaces (soft dark, not pure black)
-    'bg_dark': '#202020',        # main app background (Win11 dark)
-    'bg_medium': '#2B2B2B',      # sidebar / navigation
-    'bg_light': '#313131',       # cards / panels
-
-    # Accent (Windows 11 signature soft blue)
-    'accent': '#4CC2FF',         # primary interactive color
-
-    # Text system (soft white, not harsh pure white)
+    'bg_dark': '#202020',       
+    'bg_medium': '#2B2B2B',     
+    'bg_light': '#313131',       
+    'accent': '#4CC2FF',         
     'text': '#FFFFFF',
     'text_dim': '#A0A0A0',
-
-    # System metrics (clean + consistent)
-    'cpu_color': '#4CAF50',      # green (CPU OK)
-    'mem_color': '#FFB74D',      # soft orange (RAM)
-    'disk_color': '#64B5F6',     # soft blue (disk)
-
-    # Network (balanced, not neon)
-    'net_down_color': '#4CC2FF', # download (accent blue)
-    'net_up_color': '#EF5350',   # upload (soft red)
-
-    # Status colors (Win11-like system feedback)
+    'cpu_color': '#4CAF50',      
+    'mem_color': '#FFB74D',      
+    'disk_color': '#64B5F6',     
+    'net_down_color': '#4CC2FF', 
+    'net_up_color': '#EF5350',   
     'success': '#4CAF50',
     'warning': '#FFB74D',
     'danger': '#EF5350',
-
-    # Graph / dashboard styling
-    'graph_bg': '#1B1B1B',       # slightly darker than main bg
-    'grid_color': '#3A3A3A'      # subtle grid lines
+    'graph_bg': '#1B1B1B',      
+    'grid_color': '#3A3A3A'      
 }
-    # Light theme colors 
     COLORS_LIGHT = {
         'bg_dark': '#f5f5f5',
         'bg_medium': '#ffffff',
@@ -119,26 +101,18 @@ class SystemMonitorUI(
             self.status_label.config(text='Monitoring Paused (Auto-start disabled)', fg=self.COLORS['warning'])
 
     def show_toast(self, message, error=True, duration_ms=4000):
-        """Show a floating pop-up banner in the corner of the window.
-
-        Unlike show_notification (which just changes the footer label text),
-        this creates an actual Toplevel widget that overlays the app, so it's
-        impossible to miss even if you're not watching the footer.
-        """
+        
         try:
             toast = tk.Toplevel(self.root)
-            toast.overrideredirect(True)   # no title bar/border
+            toast.overrideredirect(True)   
             toast.attributes('-topmost', True)
             try:
                 toast.attributes('-alpha', 0.96)
             except tk.TclError:
-                pass  # -alpha isn't supported on every platform
-
+                pass  
             bg_color = self.COLORS['danger'] if error else self.COLORS['success']
-
             frame = tk.Frame(toast, bg=bg_color, padx=16, pady=12)
             frame.pack(fill='both', expand=True)
-
             tk.Label(
                 frame,
                 text=message,
@@ -148,7 +122,6 @@ class SystemMonitorUI(
                 wraplength=340,
                 justify='left'
             ).pack(side='left')
-
             close_btn = tk.Button(
                 frame,
                 text='✕',
@@ -162,7 +135,6 @@ class SystemMonitorUI(
             )
             close_btn.pack(side='right', padx=(10, 0))
 
-            # Position: stack toasts in the bottom-right corner of the main window
             self.root.update_idletasks()
             root_x = self.root.winfo_x()
             root_y = self.root.winfo_y()
@@ -173,17 +145,13 @@ class SystemMonitorUI(
             toast_w = max(toast.winfo_reqwidth(), 260)
             toast_h = toast.winfo_reqheight()
 
-            # Clean up any toasts that were already destroyed (e.g. via the X button)
             self._toast_widgets = [t for t in self._toast_widgets if t.winfo_exists()]
             stack_offset = len(self._toast_widgets) * (toast_h + 10)
 
             x = root_x + root_w - toast_w - 20
             y = root_y + root_h - toast_h - 60 - stack_offset
-
             toast.geometry(f"{toast_w}x{toast_h}+{x}+{y}")
-
             self._toast_widgets.append(toast)
-
             def _remove():
                 if toast in self._toast_widgets:
                     self._toast_widgets.remove(toast)
@@ -195,7 +163,7 @@ class SystemMonitorUI(
             print(f"Could not show toast: {e}")
 
     def _dispatch_alert(self, key, message, is_error, active):
-        """Send alert/recovery notifications with cooldown to avoid spam."""
+         
         if not self.show_notifications:
             return
 
@@ -327,7 +295,7 @@ class SystemMonitorUI(
             borderwidth=0,
             tabmargins=[0, 0, 0, 0]
         )
-        # Make tabs stretch to fill width equally
+        
         style.configure(
             'Custom.TNotebook.Tab',
             background=self.COLORS['bg_medium'],
@@ -366,9 +334,8 @@ class SystemMonitorUI(
         self.create_cleanup_tab()
         self.create_process_tab()
         self.create_keyboard_tab()
-        self.create_settings_tab()
+        self.create_settings_tab() 
         
-        # Force tabs to stretch by binding to configure event
         def on_tab_configure(event):
             # Calculate width per tab (divide available width by number of tabs)
             num_tabs = self.notebook.index('end')
@@ -378,7 +345,6 @@ class SystemMonitorUI(
         self.notebook.bind('<Configure>', on_tab_configure)
 
     def create_footer(self):
-        """Create footer section"""
         footer = tk.Frame(self.root, bg=self.COLORS['bg_medium'], height=45)
         footer.pack(fill='x', side='bottom')
         footer.pack_propagate(False)
@@ -497,7 +463,7 @@ class SystemMonitorUI(
         self.update_label.config(text=f"Last update: {time.strftime('%H:%M:%S')}")
 
     def on_closing(self):
-        """Handle window close"""
+        
         self.running = False
         # Unbind scroll events to prevent memory leaks
         try:

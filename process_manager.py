@@ -3,7 +3,6 @@ import os
 import platform
 from datetime import datetime
 class ProcessManager:
-    # Critical processes that should show warning before termination
     CRITICAL_PROCESSES = {
         'Windows': [
             'system', 'csrss.exe', 'smss.exe', 'wininit.exe', 'services.exe',
@@ -12,16 +11,12 @@ class ProcessManager:
         ]
     }
     def __init__(self):
-        """Initialize process manager"""
+        
         self.system = psutil.WINDOWS 
         self.critical_list = self._get_critical_processes()
-        
     def _get_critical_processes(self):
 
-        """Get list of critical processes for current OS"""
-
         system = platform.system()
-        
         if system == 'Windows':
             return [p.lower() for p in self.CRITICAL_PROCESSES['Windows']]
         
@@ -35,7 +30,6 @@ class ProcessManager:
                 # Get basic info
                 pinfo = proc.info
                 
-                # Get CPU and memory info
                 with proc.oneshot():
                     pinfo['cpu_percent'] = proc.cpu_percent(interval=None)
                     pinfo['memory_mb'] = proc.memory_info().rss / (1024 * 1024)
@@ -75,15 +69,7 @@ class ProcessManager:
         return processes
     
     def get_process_details(self, pid):
-        """
-        Get detailed information about a specific process
         
-        Args:
-            pid: Process ID
-            
-        Returns:
-            dict: Detailed process information
-        """
         try:
             proc = psutil.Process(pid)
             
@@ -126,52 +112,29 @@ class ProcessManager:
             return {'error': str(e)}
     
     def is_critical_process(self, process_name, pid=None):
-        """
-        Check if a process is critical to system operation
         
-        Args:
-            process_name: Name of the process
-            pid: Process ID (optional, for additional checks)
-            
-        Returns:
-            bool: True if critical
-        """
         if not process_name:
             return False
         
-        # Check against known critical processes
         name_lower = process_name.lower()
         if any(crit in name_lower for crit in self.critical_list):
             return True
         
-        # Check PID (very low PIDs are usually system processes)
         if pid and pid < 100:
             return True
         
-        # Check if it's a system process (Windows)
         if process_name.lower() in ['system', 'registry']:
             return True
         
         return False
     
     def terminate_process(self, pid, force=False):
-        """
-        Terminate a process
         
-        Args:
-            pid: Process ID to terminate
-            force: If True, use kill instead of terminate
-            
-        Returns:
-            dict: Result with success status and message
-        """
         try:
             proc = psutil.Process(pid)
             proc_name = proc.name()
-            
             # Check if critical
             is_critical = self.is_critical_process(proc_name, pid)
-            
             # Terminate or kill
             if force:
                 proc.kill()
@@ -211,15 +174,7 @@ class ProcessManager:
             }
     
     def get_process_tree(self, pid):
-        """
-        Get process tree (parent and children)
-        
-        Args:
-            pid: Process ID
-            
-        Returns:
-            dict: Process tree information
-        """
+       
         try:
             proc = psutil.Process(pid)
             
@@ -259,7 +214,7 @@ class ProcessManager:
             return {'error': str(e)}
     
     def get_system_summary(self):
-        """Get summary of system processes"""
+        
         try:
             processes = list(psutil.process_iter(['pid', 'name']))
             
@@ -284,15 +239,7 @@ class ProcessManager:
             }
     
     def search_processes(self, query):
-        """
-        Search for processes by name
         
-        Args:
-            query: Search query
-            
-        Returns:
-            list: Matching processes
-        """
         query_lower = query.lower()
         matching = []
         
@@ -308,7 +255,7 @@ class ProcessManager:
         
         return matching
 def main():
-    """Test process manager"""
+
     print("=" * 80)
     print("Process Manager Test")
     print("=" * 80)

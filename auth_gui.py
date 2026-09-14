@@ -37,7 +37,6 @@ class AuthenticationGUI:
         self.root.configure(bg=self.colors['bg'])
         self.show_login()
 
-    # ---------- COMMON SCROLLABLE LAYOUT ----------
     def create_scrollable_page(self):
         self.clear_window()
 
@@ -63,7 +62,6 @@ class AuthenticationGUI:
         for w in self.root.winfo_children():
             w.destroy()
 
-    # ---------- LOGIN ----------
     def show_login(self):
         main = self.create_scrollable_page()
 
@@ -97,8 +95,6 @@ class AuthenticationGUI:
                                        relief="flat" , width=50)
         self.login_password.pack(fill="x", ipady=8, pady=10 , padx=5)
         
-        "Enter key binding for login"
-        
         self.login_username.bind("<Return>", lambda e: self.handle_login())   
         self.login_password.bind("<Return>", lambda e: self.handle_login())
 
@@ -119,7 +115,6 @@ class AuthenticationGUI:
                   bg=self.colors['card'], fg=self.colors['accent'],
                   command=self.show_signup).pack(pady=10, ipadx=10, ipady=5)
 
-    # ---------- SIGNUP (no email) ----------
     def show_signup(self):
         main = self.create_scrollable_page()
 
@@ -133,7 +128,6 @@ class AuthenticationGUI:
         form = tk.Frame(card, bg=self.colors['card'])
         form.pack(padx=30, pady=30)
 
-        # --- Basic fields ---
         basic_fields = [
             ("Full Name","signup_fullname",  False),
             ("Username", "signup_username",  False),
@@ -151,7 +145,6 @@ class AuthenticationGUI:
             entry.pack(fill="x", ipady=8, pady=8)
             setattr(self, var, entry)
 
-        # --- Security question ---
         tk.Label(form,bg=self.colors['card'], fg=self.colors['text'] , width=50).pack(anchor="w", pady=(12, 0))
 
         self.signup_security_question = ttk.Combobox(
@@ -179,7 +172,6 @@ class AuthenticationGUI:
                   fg=self.colors['accent'], bg=self.colors['bg'],
                   command=self.show_login).pack(pady=10)
 
-    # ---------- FORGOT PASSWORD — STEP 1: enter username ----------
     def show_forgot_step1(self):
         """Step 1 — ask for username to look up the security question."""
         main = self.create_scrollable_page()
@@ -217,9 +209,8 @@ class AuthenticationGUI:
                   bg=self.colors['card'], fg=self.colors['accent'],
                   command=self.show_login).pack(pady=10, ipadx=10, ipady=5)
 
-    # ---------- FORGOT PASSWORD — STEP 2: answer question + new password ----------
     def show_forgot_step2(self, username, security_question):
-        """Step 2 — show the security question and collect answer + new password."""
+
         main = self.create_scrollable_page()
 
         tk.Label(main, text="🔑", font=("Segoe UI", 48),
@@ -323,7 +314,7 @@ class AuthenticationGUI:
         success, msg, _ = self.db.register_user(
             username, password, fullname,
             security_question=sec_q,
-            security_answer=sec_a.lower()   # store lowercase for case-insensitive matching
+            security_answer=sec_a.lower()   
         )
         if success:
             messagebox.showinfo("Success", msg)
@@ -332,7 +323,7 @@ class AuthenticationGUI:
             messagebox.showerror("Error", msg)
 
     def handle_forgot_step1(self):
-        """Look up the security question for the given username."""
+        
         username = self.forgot_username.get().strip()
         if not username:
             messagebox.showerror("Error", "Please enter your username")
@@ -346,7 +337,7 @@ class AuthenticationGUI:
         self.show_forgot_step2(username, result)
 
     def handle_forgot_step2(self):
-        """Verify the security answer and reset the password."""
+        
         username         = self._reset_username
         answer           = self.forgot_answer.get().strip().lower()
         new_password     = self.forgot_new_password.get()
@@ -380,7 +371,6 @@ class AuthenticationGUI:
 
     def run(self):
         self.root.mainloop()
-
 
 if __name__ == "__main__":
     AuthenticationGUI().run()
