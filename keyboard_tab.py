@@ -5,7 +5,6 @@ class KeyboardTabMixin:
         self.key_buttons = {}
         tab = tk.Frame(self.notebook, bg=self.COLORS['bg_dark'])
         self.notebook.add(tab, text='Keyboard Test')
-
         tk.Label(
             tab,
             text='Keyboard Tester',
