@@ -21,8 +21,9 @@ def launch_dashboard(current_user=None, db_manager=None):
     )
     root.mainloop()
 def main():
-    from auth_gui import AuthenticationGUI
-    auth = AuthenticationGUI(on_login_success=launch_dashboard)
-    auth.run()
+    launch_dashboard()
+    # from auth_gui import AuthenticationGUI
+    # auth = AuthenticationGUI(on_login_success=launch_dashboard)
+    # auth.run()
 if __name__ == "__main__":
     main()

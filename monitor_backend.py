@@ -1,12 +1,10 @@
 import time
 import psutil
 GB = 1024 ** 3
-MB_BITS = 8 / (1024 * 1024)  # bytes/sec -> megabits/sec
+MB_BITS = 8 / (1024 * 1024)  # bytes/sec to megabits/sec
 
 class SystemMonitor:
     def __init__(self):
-        # cpu_percent needs a previous reading to compare against,
-        # so this first call just sets that baseline (return value unused)
         psutil.cpu_percent(interval=0)
         net = psutil.net_io_counters()
         self.last_net_io = net

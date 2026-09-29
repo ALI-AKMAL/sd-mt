@@ -5,17 +5,13 @@ class ProcessTabMixin:
     def create_process_tab(self):
         tab = tk.Frame(self.notebook, bg=self.COLORS['bg_dark'])
         self.notebook.add(tab, text='Processes')
-
         self._process_search_after_id = None
         self._process_request_id = 0
         self._process_loading = False
-
         main = tk.Frame(tab, bg=self.COLORS['bg_dark'])
         main.pack(fill='both', expand=True, padx=20, pady=20)
-
         controls = tk.Frame(main, bg=self.COLORS['bg_dark'])
         controls.pack(fill='x', pady=(0, 15))
-
         tk.Label(
             controls,
             text='Process Manager',
@@ -23,7 +19,6 @@ class ProcessTabMixin:
             bg=self.COLORS['bg_dark'],
             fg=self.COLORS['text']
         ).pack(side='left')
-
         self.process_refresh_btn = tk.Button(
             controls,
             text='Refresh',
@@ -150,37 +145,28 @@ class ProcessTabMixin:
                 step = -1 if delta > 0 else 1
             canvas.yview_scroll(step, 'units')
             return 'break'
-
         def bind_mousewheel(_event=None):
             canvas.bind_all('<MouseWheel>', on_mousewheel)
             canvas.bind_all('<Button-4>', on_mousewheel)
             canvas.bind_all('<Button-5>', on_mousewheel)
-
         def unbind_mousewheel(_event=None):
             canvas.unbind_all('<MouseWheel>')
             canvas.unbind_all('<Button-4>')
             canvas.unbind_all('<Button-5>')
-
         for widget in (tab, canvas, self.process_list_frame):
             widget.bind('<Enter>', bind_mousewheel)
             widget.bind('<Leave>', unbind_mousewheel)
-
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
-
         self.load_processes()
-
     def schedule_search_processes(self):
         """Debounce search input to prevent lag while typing."""
         if self._process_search_after_id:
             self.root.after_cancel(self._process_search_after_id)
         self._process_search_after_id = self.root.after(300, self.search_processes)
-
     def load_processes(self):
-        """Load and display processes."""
         if self._process_loading:
             return
-
         self._process_loading = True
         self._process_request_id += 1
         request_id = self._process_request_id
@@ -369,23 +355,16 @@ class ProcessTabMixin:
             self.show_notification('[X] ' + result['message'], error=True)
 
     def refresh_processes(self):
-        """Refresh process list."""
         self.load_processes()
-
     def search_processes(self):
-        """Search and filter processes."""
         self._process_search_after_id = None
         query = self.search_var.get().strip()
-
         if not query:
             self.refresh_processes()
             return
-
         self._process_request_id += 1
         request_id = self._process_request_id
-
         self.process_summary_label.config(text=f"Searching: {query}")
-
         def search_thread():
             try:
                 results = self.process_manager.search_processes(query)
@@ -393,5 +372,4 @@ class ProcessTabMixin:
                 self.root.after(0, self.display_processes, results, summary, request_id)
             except Exception as e:
                 self.root.after(0, self._handle_process_error, f'Search error: {e}')
-
         threading.Thread(target=search_thread, daemon=True).start()

@@ -33,7 +33,7 @@ class SystemMonitorUI(
     'accent': '#4CC2FF',         
     'text': '#FFFFFF',
     'text_dim': '#A0A0A0',
-    'cpu_color': '#4CAF50',      
+    'cpu_color': '#EF5350',      
     'mem_color': '#FFB74D',      
     'disk_color': '#64B5F6',     
     'net_down_color': '#4CC2FF', 
@@ -189,7 +189,6 @@ class SystemMonitorUI(
         self._alert_state[key] = state
 
     def check_alerts(self, cpu, mem, disk, down_mbps, up_mbps):
-        """Evaluate live metrics and trigger alerts."""
         total_net = down_mbps + up_mbps
 
         # CPU alerts
@@ -217,7 +216,7 @@ class SystemMonitorUI(
         )
 
     def load_user_settings(self):
-        """Load persisted user settings and apply defaults."""
+       
         try:
             if not self.db_manager or not self.current_user:
                 return
@@ -237,7 +236,7 @@ class SystemMonitorUI(
             print(f'Could not load user settings: {e}')
 
     def setup_window(self):
-        """Configure main window"""
+      
         self.root.title("System Monitor - Live Graphs Edition")
         self.root.geometry("1000x750")
         self.root.minsize(900, 650)
@@ -248,7 +247,7 @@ class SystemMonitorUI(
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def center_window(self):
-        """Center window on screen"""
+        
         self.root.update_idletasks()
         width = self.root.winfo_width()
         height = self.root.winfo_height()
@@ -257,16 +256,11 @@ class SystemMonitorUI(
         self.root.geometry(f'{width}x{height}+{x}+{y}')
 
     def create_ui(self):
-        """Create the user interface"""
-        # Header
         self.create_header()
-        # Notebook (tabs)
         self.create_notebook()
-        # Footer
         self.create_footer()
 
     def create_header(self):
-        """Create header section"""
         header = tk.Frame(self.root, bg=self.COLORS['bg_dark'], height=70)
         header.pack(fill='x', padx=0, pady=0)
         header.pack_propagate(False)
@@ -281,7 +275,7 @@ class SystemMonitorUI(
         title_label.pack(pady=15)
 
     def create_notebook(self):
-        """Create tabbed interface"""
+        
         # Container
         notebook_container = tk.Frame(self.root, bg=self.COLORS['bg_dark'])
         notebook_container.pack(fill='both', expand=True, padx=20, pady=10)
@@ -334,7 +328,7 @@ class SystemMonitorUI(
         self.create_cleanup_tab()
         self.create_process_tab()
         self.create_keyboard_tab()
-        self.create_settings_tab() 
+        self.create_settings_tab()
         
         def on_tab_configure(event):
             # Calculate width per tab (divide available width by number of tabs)
@@ -376,13 +370,13 @@ class SystemMonitorUI(
                 try:
                     cpu, mem, disk = self.monitor.get_usage()
                     down_mbps, up_mbps, total_down_gb, total_up_gb = self.monitor.get_network_usage()
-                    # Add to data queues
+                    
                     self.cpu_data.append(cpu)
                     self.mem_data.append(mem)
                     self.disk_data.append(disk)
                     self.net_down_data.append(down_mbps)
                     self.net_up_data.append(up_mbps)
-                    # Keep only one queued UI update to avoid Tk event backlog under load.
+                    
                     if not self._monitor_update_pending:
                         self._monitor_update_pending = True
                         self.root.after(
@@ -404,10 +398,10 @@ class SystemMonitorUI(
         thread.start()
 
     def update_monitoring(self, cpu, mem, disk, down_mbps, up_mbps, total_down_gb, total_up_gb):
-        """Update monitoring display with graphs"""
+    
         self._monitor_update_pending = False
         self.check_alerts(cpu, mem, disk, down_mbps, up_mbps)
-        # Update CPU
+       
         self.cpu_percent_label.config(text=f"{cpu:.1f}%")
         self.draw_graph(self.cpu_canvas, self.cpu_data, self.COLORS['cpu_color'])
         if cpu < 50:
@@ -419,7 +413,7 @@ class SystemMonitorUI(
         else:
             self.cpu_status_label.config(text="Status: Critical!", fg=self.COLORS['danger'])
             self.cpu_percent_label.config(fg=self.COLORS['danger'])
-        # Update Memory
+    
         self.mem_percent_label.config(text=f"{mem:.1f}%")
         self.draw_graph(self.mem_canvas, self.mem_data, self.COLORS['mem_color'])
         if mem < 50:
@@ -431,7 +425,7 @@ class SystemMonitorUI(
         else:
             self.mem_status_label.config(text="Status: Critical!", fg=self.COLORS['danger'])
             self.mem_percent_label.config(fg=self.COLORS['danger'])
-        # Update Disk
+       
         self.disk_percent_label.config(text=f"{disk:.1f}%")
         self.draw_graph(self.disk_canvas, self.disk_data, self.COLORS['disk_color'])
         if disk < 70:
@@ -443,11 +437,11 @@ class SystemMonitorUI(
         else:
             self.disk_status_label.config(text="Status: Critical!", fg=self.COLORS['danger'])
             self.disk_percent_label.config(fg=self.COLORS['danger'])
-        # Update Network
+        
         self.net_down_label.config(text=f"↓ {down_mbps:.2f} Mbps")
         self.net_up_label.config(text=f"↑ {up_mbps:.2f} Mbps")
         self.draw_network_graph(self.net_canvas, self.net_down_data, self.net_up_data)
-        # Network status
+        
         total_speed = down_mbps + up_mbps
         if total_speed < 1:
             self.net_status_label.config(text="Status: Idle", fg=self.COLORS['text_dim'])
@@ -465,7 +459,6 @@ class SystemMonitorUI(
     def on_closing(self):
         
         self.running = False
-        # Unbind scroll events to prevent memory leaks
         try:
             self.root.unbind_all("<MouseWheel>")
             self.root.unbind_all("<Button-4>")

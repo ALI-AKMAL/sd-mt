@@ -11,7 +11,6 @@ class CleanupTabMixin:
         main = tk.Frame(tab, bg=self.COLORS['bg_dark'])
         main.pack(fill='both', expand=True, padx=30, pady=20)
         
-        # Title
         title_frame = tk.Frame(main, bg=self.COLORS['bg_dark'])
         title_frame.pack(fill='x', pady=(0, 20))
         tk.Label(
@@ -69,7 +68,6 @@ class CleanupTabMixin:
         )
         self.scan_btn.pack(side='left', padx=(0, 10))
         
-        # Open file manager button
         open_files_btn = tk.Button(
             buttons_frame,
             text="Open File Manager",
@@ -85,7 +83,6 @@ class CleanupTabMixin:
         )
         open_files_btn.pack(side='left', padx=(0, 10))
         
-        # Open temp folder button
         open_temp_btn = tk.Button(
             buttons_frame,
             text="Open Temp Folder",
@@ -101,7 +98,6 @@ class CleanupTabMixin:
         )
         open_temp_btn.pack(side='left')
         
-        # Results area
         results_frame = tk.Frame(main, bg=self.COLORS['bg_medium'])
         results_frame.pack(fill='both', expand=True)
         
@@ -118,7 +114,6 @@ class CleanupTabMixin:
             fg=self.COLORS['text']
         ).pack(anchor='w', pady=(0, 10))
         
-        # Results text area
         self.cleanup_text = scrolledtext.ScrolledText(
             results_content,
             font=('Consolas', 10),
@@ -128,17 +123,14 @@ class CleanupTabMixin:
             padx=15,
             pady=15,
             wrap='word',
-            height=10
+            height=40
         )
         self.cleanup_text.pack(fill='both', expand=True)
         self.cleanup_text.insert('1.0', 'Click "Scan Temp Files" to start scanning...\n')
         self.cleanup_text.config(state='disabled')
-        
-        # Load disk space
+    
         self.load_disk_space()
-
     def load_disk_space(self):
-        
         def load_thread():
             try:
                 disk_info = self.cleanup.get_disk_space()
@@ -152,18 +144,15 @@ class CleanupTabMixin:
             except Exception as e:
                 error_text = f"Error loading disk space: {e}"
                 self.root.after(0, lambda: self.disk_info_label.config(text=error_text))
-        
         thread = threading.Thread(target=load_thread, daemon=True)
         thread.start()
-
     def scan_temp_files(self):
-        
         self.scan_btn.config(state='disabled', text='Scanning...')
         self.cleanup_text.config(state='normal')
         self.cleanup_text.delete('1.0', tk.END)
         self.cleanup_text.insert('1.0', 'Scanning temporary files...\nThis may take a moment...\n\n')
         self.cleanup_text.config(state='disabled')
-        
+    
         def scan_thread():
             try:
                 results = self.cleanup.scan_temp_files()
@@ -180,7 +169,6 @@ class CleanupTabMixin:
         self.cleanup_text.config(state='normal')
         self.cleanup_text.delete('1.0', tk.END)
         
-        # Summary
         self.cleanup_text.insert('end', 'SCAN RESULTS\n')
         self.cleanup_text.insert('end', '' * 60 + '\n\n')
         
@@ -192,16 +180,15 @@ class CleanupTabMixin:
         self.cleanup_text.insert('end', 'BY CATEGORY:\n')
         self.cleanup_text.insert('end', '' * 60 + '\n\n')
         
-        # Categories
         for category, data in results['categories'].items():
             if data['file_count'] > 0:
                 self.cleanup_text.insert('end', f"{category}:\n")
                 self.cleanup_text.insert('end', f"Files: {data['file_count']:,}\n")
                 self.cleanup_text.insert('end', f"Size: {data['size_mb']:.2f} MB ")
                 self.cleanup_text.insert('end', f"({data['size_gb']:.2f} GB)\n\n")
-        self.cleanup_text.insert('end', 'â•' * 60 + '\n')
+        self.cleanup_text.insert('end', * 60 + '\n')
         self.cleanup_text.insert('end', 'NOTE: Use "Open File Manager" to manually delete files\n')
-        self.cleanup_text.insert('end', 'â•' * 60 + '\n')
+        self.cleanup_text.insert('end', * 60 + '\n')
         
         self.cleanup_text.config(state='disabled')
         self.scan_btn.config(state='normal', text='Scan Temp Files')
@@ -234,7 +221,6 @@ class CleanupTabMixin:
        
         color = self.COLORS['danger'] if error else self.COLORS['success']
         self.status_label.config(text=f" {message}", fg=color)
-        
         
         def reset():
             self.status_label.config(text="Monitoring Active", fg=self.COLORS['success'])

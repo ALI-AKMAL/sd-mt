@@ -6,14 +6,11 @@ import platform
 from collections import deque
 class SettingsTabMixin:
     def create_settings_tab(self):
-        """Create settings and preferences tab"""
         tab = tk.Frame(self.notebook, bg=self.COLORS['bg_dark'])
         self.notebook.add(tab, text='⚙️ Settings')
-        # Main container with scroll
         canvas = tk.Canvas(tab, bg=self.COLORS['bg_dark'], highlightthickness=0)
         scrollbar = tk.Scrollbar(tab, orient='vertical', command=canvas.yview)
         scrollable_frame = tk.Frame(canvas, bg=self.COLORS['bg_dark'])
-        
         scrollable_frame.bind(
             '<Configure>',
             lambda e: canvas.configure(scrollregion=canvas.bbox('all'))
@@ -21,12 +18,8 @@ class SettingsTabMixin:
         canvas.bind('<Configure>',
         lambda e: canvas.itemconfig(canvas_window, width=e.width)
         )
-        
         canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
-        # canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
         canvas.configure(yscrollcommand=scrollbar.set)
-        
-        # Enable scrolling (mouse wheel + two-finger trackpad)
         def on_mousewheel(event):
             if getattr(event, 'num', None) == 4:
                 step = -1
@@ -39,31 +32,23 @@ class SettingsTabMixin:
                 step = -1 if delta > 0 else 1
             canvas.yview_scroll(step, "units")
             return "break"
-
         def bind_mousewheel(_event=None):
             canvas.bind_all("<MouseWheel>", on_mousewheel)
             canvas.bind_all("<Button-4>", on_mousewheel)
             canvas.bind_all("<Button-5>", on_mousewheel)
-
         def unbind_mousewheel(_event=None):
             canvas.unbind_all("<MouseWheel>")
             canvas.unbind_all("<Button-4>")
             canvas.unbind_all("<Button-5>")
-
         for widget in (tab, canvas, scrollable_frame):
             widget.bind("<Enter>", bind_mousewheel)
             widget.bind("<Leave>", unbind_mousewheel)
-        
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
-        
         main = tk.Frame(scrollable_frame, bg=self.COLORS['bg_dark'])
         main.pack(fill='both', expand=True, padx=30, pady=20)
-        
-        # Title
         title_frame = tk.Frame(main, bg=self.COLORS['bg_dark'])
         title_frame.pack(fill='x', pady=(0, 20))
-        
         tk.Label(
             title_frame,
             text="⚙️ Settings & Preferences",
@@ -72,7 +57,6 @@ class SettingsTabMixin:
             fg=self.COLORS['text']
         ).pack(side='left')
         
-        # === THEME SETTINGS ===
         theme_section = tk.Frame(main, bg=self.COLORS['bg_medium'])
         theme_section.pack(fill='x', pady=(0, 15))
         
@@ -89,7 +73,6 @@ class SettingsTabMixin:
             fg=self.COLORS['text']
         ).pack(anchor='w', pady=(0, 15))
         
-        # Theme selection
         theme_frame = tk.Frame(theme_content, bg=self.COLORS['bg_medium'])
         theme_frame.pack(fill='x', pady=(0, 10))
         
@@ -133,7 +116,6 @@ class SettingsTabMixin:
         )
         light_btn.pack(side='left')
         
-        # === MONITORING SETTINGS ===
         monitor_section = tk.Frame(main, bg=self.COLORS['bg_medium'])
         monitor_section.pack(fill='x', pady=(0, 15))
         
@@ -150,7 +132,6 @@ class SettingsTabMixin:
             fg=self.COLORS['text']
         ).pack(anchor='w', pady=(0, 15))
         
-        # Update interval
         interval_frame = tk.Frame(monitor_content, bg=self.COLORS['bg_medium'])
         interval_frame.pack(fill='x', pady=(0, 10))
         
@@ -180,7 +161,6 @@ class SettingsTabMixin:
             fg=self.COLORS['text_dim']
         ).pack(side='left')
         
-        # Auto-start
         self.auto_start_var = tk.BooleanVar(value=self.auto_start_monitoring)
         auto_check = tk.Checkbutton(
             monitor_content,
@@ -195,7 +175,6 @@ class SettingsTabMixin:
         )
         auto_check.pack(anchor='w', pady=(0, 10))
         
-        # Notifications
         self.notif_var = tk.BooleanVar(value=self.show_notifications)
         notif_check = tk.Checkbutton(
             monitor_content,
@@ -210,7 +189,6 @@ class SettingsTabMixin:
         )
         notif_check.pack(anchor='w')
         
-        # === DATA SETTINGS ===
         data_section = tk.Frame(main, bg=self.COLORS['bg_medium'])
         data_section.pack(fill='x', pady=(0, 15))
         
@@ -227,11 +205,9 @@ class SettingsTabMixin:
             fg=self.COLORS['text']
         ).pack(anchor='w', pady=(0, 15))
         
-        # Buttons frame
         buttons_frame = tk.Frame(data_content, bg=self.COLORS['bg_medium'])
         buttons_frame.pack(fill='x', pady=(0, 10))
         
-        # Export graph data button
         export_btn = tk.Button(
             buttons_frame,
             text="Export Graph Data",
@@ -459,7 +435,6 @@ class SettingsTabMixin:
             )
 
     def clear_graph_data(self):
-        """Clear all graph data"""
         from tkinter import messagebox
         
         result = messagebox.askyesno(
@@ -581,9 +556,7 @@ class SettingsTabMixin:
             
             net_up_avg = sum(self.net_up_data) / len(self.net_up_data) if self.net_up_data else 0
             net_up_max = max(self.net_up_data) if self.net_up_data else 0
-            
             # Generate report
-            
             report = f"""SYSTEM PERFORMANCE REPORT
             Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             Monitoring Period: Last 30 seconds ({len(self.cpu_data)} data points)

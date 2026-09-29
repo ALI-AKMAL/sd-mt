@@ -2,18 +2,13 @@ import sqlite3
 import hashlib
 
 class DatabaseManager:
-    """Manages user authentication and settings."""
-
     def __init__(self, db_name='system_monitor.db'):
         self.db_name = db_name
-        
         self.create_tables()
         self._migrate()
     def create_tables(self):
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
-
-        # users — no email; includes security question/answer
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 user_id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,7 +64,6 @@ class DatabaseManager:
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
 
-        # Fetch current column names
         cursor.execute("PRAGMA table_info(users)")
         existing_cols = {row[1] for row in cursor.fetchall()}
 
@@ -205,28 +199,6 @@ class DatabaseManager:
         except Exception as e:
             return False, f'Error: {e}', None
 
-    def logout_user(self, session_id, user_id):
-        try:
-            conn = sqlite3.connect(self.db_name)
-            cursor = conn.cursor()
-            cursor.execute(
-                'UPDATE sessions SET logout_time = CURRENT_TIMESTAMP WHERE session_id = ?',
-                (session_id,),
-            )
-            cursor.execute(
-                'INSERT INTO activity_log (user_id, action, details) VALUES (?, ?, ?)',
-                (user_id, 'LOGOUT', 'User logged out'),
-            )
-            conn.commit()
-            conn.close()
-            return True
-        except Exception as e:
-            print(f'Logout error: {e}')
-            return False
-
-    # ------------------------------------------------------------------
-    # FORGOT PASSWORD — security question/answer flow
-    # ------------------------------------------------------------------
 
     def get_security_question(self, username):
         """
@@ -287,92 +259,6 @@ class DatabaseManager:
             conn.close()
             return True, 'Password reset successfully!'
 
-        except Exception as e:
-            return False, f'Error: {e}'
-
-    # ------------------------------------------------------------------
-    # USER INFO & SETTINGS
-    # ------------------------------------------------------------------
-
-    def get_user_info(self, user_id):
-        try:
-            conn = sqlite3.connect(self.db_name)
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                SELECT username, full_name, created_at, last_login
-                FROM users
-                WHERE user_id = ?
-                """,
-                (user_id,),
-            )
-            user = cursor.fetchone()
-            conn.close()
-            if user:
-                return {
-                    'username':   user[0],
-                    'full_name':  user[1],
-                    'created_at': user[2],
-                    'last_login': user[3],
-                }
-            return None
-        except Exception as e:
-            print(f'Error getting user info: {e}')
-            return None
-
-    def get_user_activity(self, user_id, limit=10):
-        try:
-            conn = sqlite3.connect(self.db_name)
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                SELECT action, timestamp, details
-                FROM activity_log
-                WHERE user_id = ?
-                ORDER BY timestamp DESC
-                LIMIT ?
-                """,
-                (user_id, limit),
-            )
-            activities = cursor.fetchall()
-            conn.close()
-            return [
-                {'action': act[0], 'timestamp': act[1], 'details': act[2]}
-                for act in activities
-            ]
-        except Exception as e:
-            print(f'Error getting activity: {e}')
-            return []
-
-    def change_password(self, user_id, old_password, new_password):
-        try:
-            if len(new_password) < 6:
-                return False, 'New password must be at least 6 characters'
-
-            conn = sqlite3.connect(self.db_name)
-            cursor = conn.cursor()
-
-            old_hash = self.hash_password(old_password)
-            cursor.execute(
-                'SELECT user_id FROM users WHERE user_id = ? AND password_hash = ?',
-                (user_id, old_hash),
-            )
-            if not cursor.fetchone():
-                conn.close()
-                return False, 'Current password is incorrect'
-
-            new_hash = self.hash_password(new_password)
-            cursor.execute(
-                'UPDATE users SET password_hash = ? WHERE user_id = ?',
-                (new_hash, user_id),
-            )
-            cursor.execute(
-                'INSERT INTO activity_log (user_id, action, details) VALUES (?, ?, ?)',
-                (user_id, 'PASSWORD_CHANGE', 'Password changed successfully'),
-            )
-            conn.commit()
-            conn.close()
-            return True, 'Password changed successfully'
         except Exception as e:
             return False, f'Error: {e}'
 

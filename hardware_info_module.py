@@ -144,7 +144,6 @@ class HardwareInfo:
             return info
         except Exception:
             return None
-
     def get_all_hardware_info(self, use_cache=True):
         if use_cache and self._cache and self._cache_time:
             if datetime.now().timestamp() - self._cache_time < self._cache_duration:
@@ -161,6 +160,5 @@ class HardwareInfo:
         self._cache_time = datetime.now().timestamp()
         return self._cache
     def clear_cache(self):
-        
         self._cache = {}
         self._cache_time = None

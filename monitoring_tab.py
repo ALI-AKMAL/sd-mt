@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+from matplotlib import container
 class MonitoringTabMixin:
     def create_monitoring_tab(self):
         
@@ -207,7 +208,7 @@ class MonitoringTabMixin:
                              anchor='e', font=('Segoe UI', 9, 'bold'))
 
     def create_network_graph(self, parent):
-        """Create network monitoring section with dual graph (download/upload)"""
+       
         # Container
         container = tk.Frame(parent, bg=self.COLORS['bg_dark'])
         container.pack(anchor="w" , padx=130 , pady=30)
@@ -266,7 +267,7 @@ class MonitoringTabMixin:
         self.net_total_label.pack(anchor='w', pady=(4, 0))
 
     def draw_network_graph(self, canvas, down_data, up_data):
-        """Draw dual network graph (download and upload)"""
+       
         canvas.delete('all')
         
         width = 850

@@ -3,15 +3,12 @@ from tkinter import ttk, scrolledtext
 import threading
 
 class HardwareTabMixin:
-    def create_hardware_tab(self):
-        """Create hardware information tab"""
+    def create_hardware_tab(self):   
         tab = tk.Frame(self.notebook, bg=self.COLORS['bg_dark'])
-        self.notebook.add(tab, text='Hardware Info')
+        self.notebook.add(tab, text='Hardware Information')
         
-        # Top controls
         controls = tk.Frame(tab, bg=self.COLORS['bg_dark'])
         controls.pack(fill='x', padx=20, pady=15)
-        
         tk.Label(
             controls,
             text="System Hardware Information",
@@ -77,7 +74,6 @@ class HardwareTabMixin:
         def add_line(text, tag='value'):
             self.hardware_text.insert(tk.END, text + '\n', tag)
         
-        # CPU
         add_line('═' * 140, 'header')
         add_line('CPU INFORMATION', 'header')
         add_line('═' * 140, 'header')
@@ -89,7 +85,6 @@ class HardwareTabMixin:
         add_line(f"Current Freq:     {cpu['current_frequency']} MHz")
         add_line('')
         
-        # Memory
         add_line('═' * 140, 'header')
         add_line('MEMORY INFORMATION', 'header')
         add_line('═' * 140, 'header')
@@ -100,7 +95,6 @@ class HardwareTabMixin:
         add_line(f"Usage:            {mem['percentage']}%")
         add_line('')
         
-        # Disk
         add_line('═' * 140, 'header')
         add_line('DISK INFORMATION', 'header')
         add_line('═' * 140, 'header')
@@ -117,7 +111,6 @@ class HardwareTabMixin:
             add_line(f"  Usage:          {part['percentage']}%")
         add_line('')
         
-        # System
         add_line('═' * 140, 'header')
         add_line('SYSTEM INFORMATION', 'header')
         add_line('═' * 140, 'header')
@@ -127,8 +120,7 @@ class HardwareTabMixin:
         add_line(f"Architecture:     {sys['architecture']}")
         add_line(f"Hostname:         {sys['hostname']}")
         add_line('')
-        
-        # Battery
+    
         add_line('═' * 140, 'header')
         add_line('BATTERY INFORMATION', 'header')
         add_line('═' * 140, 'header')

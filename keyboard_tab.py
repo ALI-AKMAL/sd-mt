@@ -3,7 +3,6 @@ class KeyboardTabMixin:
     def create_keyboard_tab(self):
 
         self.key_buttons = {}
-
         tab = tk.Frame(self.notebook, bg=self.COLORS['bg_dark'])
         self.notebook.add(tab, text='Keyboard Test')
 
@@ -17,13 +16,12 @@ class KeyboardTabMixin:
 
         tk.Label(
             tab,
-            text='Press any key on your keyboard — it will light up green below.',
+            text='Press any key on your keyboard, it will light up green below.',
             font=('Segoe UI', 10),
             bg=self.COLORS['bg_dark'],
             fg=self.COLORS['text_dim']
         ).pack(pady=(0, 15))
 
-        # ── Visual keyboard ───────────────────────────────────────────────
         keyboard_frame = tk.Frame(tab, bg=self.COLORS['bg_dark'])
         keyboard_frame.pack(pady=(0, 15))
 
@@ -79,18 +77,30 @@ class KeyboardTabMixin:
                     cursor='hand2'
                 )
                 btn.pack(side='left', padx=2)
-                # Save reference so we can change color when key is pressed
+                
                 self.key_buttons[keysym] = btn
+        tk.Button(
+            tab,
+            text='Reset Keyboard',
+            font=('Segoe UI', 10),
+            bg=self.COLORS['bg_light'],
+            fg=self.COLORS['text'],
+            relief='flat',
+            command=self.reset_keyboard_colors
+        ).pack(pady=(10, 20))
 
-        # ── Bind keyboard events to the window ───────────────────────────
         self.root.bind('<KeyPress>', self.on_key_press)
 
-    # ── Called every time a key is pressed ───────────────────────────────
     def on_key_press(self, event):
         sym = event.keysym
-        # Light up the key button green
         if sym in self.key_buttons:
             self.key_buttons[sym].config(
                 bg=self.COLORS.get('success', '#00ff88'),
                 fg=self.COLORS['bg_dark']
+            )
+    def reset_keyboard_colors(self):
+        for btn in self.key_buttons.values():
+            btn.config(
+                bg=self.COLORS['bg_light'],
+                fg=self.COLORS['text']
             )

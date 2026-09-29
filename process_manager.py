@@ -11,15 +11,12 @@ class ProcessManager:
         ]
     }
     def __init__(self):
-        
         self.system = psutil.WINDOWS 
-        self.critical_list = self._get_critical_processes()
-    def _get_critical_processes(self):
-
+        self.critical_list = self.get_critical_processes()
+    def get_critical_processes(self):
         system = platform.system()
         if system == 'Windows':
-            return [p.lower() for p in self.CRITICAL_PROCESSES['Windows']]
-        
+            return [p.lower() for p in self.CRITICAL_PROCESSES['Windows']]   #Har process ko lower case mai change kry ga 
         else:
             return []
     
@@ -27,7 +24,6 @@ class ProcessManager:
         processes = []
         for proc in psutil.process_iter(['pid', 'name', 'username', 'status']):
             try:
-                # Get basic info
                 pinfo = proc.info
                 
                 with proc.oneshot():
@@ -44,14 +40,12 @@ class ProcessManager:
                         pinfo['create_time'] = datetime.fromtimestamp(proc.create_time())
                     except:
                         pinfo['create_time'] = None
-                
-                # Check if critical
+
                 pinfo['is_critical'] = self.is_critical_process(pinfo['name'], pinfo['pid'])
         
                 processes.append(pinfo)
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 continue
-        
         # Sort processes
         if sort_by == 'cpu':
             processes.sort(key=lambda x: x['cpu_percent'], reverse=True)
@@ -61,15 +55,11 @@ class ProcessManager:
             processes.sort(key=lambda x: x['name'].lower())
         elif sort_by == 'pid':
             processes.sort(key=lambda x: x['pid'])
-        
         # Apply limit
         if limit:
             processes = processes[:limit]
-        
         return processes
-    
     def get_process_details(self, pid):
-        
         try:
             proc = psutil.Process(pid)
             
@@ -86,7 +76,6 @@ class ProcessManager:
                     'create_time': datetime.fromtimestamp(proc.create_time()),
                     'is_critical': self.is_critical_process(proc.name(), pid)
                 }
-                
                 try:
                     details['exe'] = proc.exe()
                 except:
@@ -115,17 +104,13 @@ class ProcessManager:
         
         if not process_name:
             return False
-        
         name_lower = process_name.lower()
         if any(crit in name_lower for crit in self.critical_list):
             return True
-        
         if pid and pid < 100:
             return True
-        
         if process_name.lower() in ['system', 'registry']:
             return True
-        
         return False
     
     def terminate_process(self, pid, force=False):
@@ -133,7 +118,6 @@ class ProcessManager:
         try:
             proc = psutil.Process(pid)
             proc_name = proc.name()
-            # Check if critical
             is_critical = self.is_critical_process(proc_name, pid)
             # Terminate or kill
             if force:
@@ -172,7 +156,6 @@ class ProcessManager:
                 'error': str(e),
                 'message': f'Failed to terminate process: {str(e)}'
             }
-    
     def get_process_tree(self, pid):
        
         try:
@@ -212,23 +195,18 @@ class ProcessManager:
         
         except Exception as e:
             return {'error': str(e)}
-    
     def get_system_summary(self):
-        
         try:
             processes = list(psutil.process_iter(['pid', 'name']))
-            
             total_processes = len(processes)
             running = sum(1 for p in psutil.process_iter(['status']) if p.info['status'] == 'running')
             sleeping = sum(1 for p in psutil.process_iter(['status']) if p.info['status'] == 'sleeping')
-            
             return {
                 'total': total_processes,
                 'running': running,
                 'sleeping': sleeping,
                 'stopped': total_processes - running - sleeping
             }
-        
         except Exception as e:
             return {
                 'total': 0,
@@ -239,10 +217,8 @@ class ProcessManager:
             }
     
     def search_processes(self, query):
-        
         query_lower = query.lower()
         matching = []
-        
         for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_info']):
             try:
                 if query_lower in proc.info['name'].lower():

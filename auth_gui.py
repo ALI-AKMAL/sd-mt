@@ -14,8 +14,6 @@ class AuthenticationGUI:
     def __init__(self, on_login_success=None):
         self.root = tk.Tk()
         self.root.title("System Monitor - Authentication")
-
-        # 14-inch friendly size
         self.root.geometry("1100x700")
         self.root.minsize(900, 600)
         self.root.resizable(True, True)

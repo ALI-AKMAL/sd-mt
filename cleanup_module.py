@@ -4,11 +4,9 @@ import platform
 import subprocess
 class CleanupManager:
     def __init__(self):
-        """Initialize cleanup manager"""
         self.system = platform.system()
-        self.temp_locations = self._get_temp_locations()
-    def _get_temp_locations(self):
-        
+        self.temp_locations = self.get_temp_locations()
+    def get_temp_locations(self):
         locations = {
             'Windows Temp': [],
             'User Temp': [],
@@ -17,7 +15,6 @@ class CleanupManager:
             'Recycle Bin': []
         }
         if self.system == 'Windows':
-            # Windows temp locations
             locations['Windows Temp'] = [
                 os.environ.get('TEMP', ''),
                 os.environ.get('TMP', ''),
@@ -97,7 +94,6 @@ class CleanupManager:
             temp_path = '/tmp'
         return self.open_file_explorer(temp_path)
     def get_disk_space(self):
-        
         try:
             if self.system == 'Windows':
                 drive = 'C:\\'
