@@ -17,11 +17,9 @@ class AuthenticationGUI:
         self.root.geometry("1100x700")
         self.root.minsize(900, 600)
         self.root.resizable(True, True)
-
         self.db = DatabaseManager()
         self.current_user = None
         self.on_login_success = on_login_success
-
         self.colors = {
             'bg':       '#1a1a2e',
             'card':     '#16213e',
@@ -37,25 +35,18 @@ class AuthenticationGUI:
 
     def create_scrollable_page(self):
         self.clear_window()
-
         canvas = tk.Canvas(self.root, bg=self.colors['bg'], highlightthickness=0)
         scrollbar = tk.Scrollbar(self.root, orient="vertical", command=canvas.yview)
-
         frame = tk.Frame(canvas, bg=self.colors['bg'])
         frame.bind("<Configure>",
                    lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-
         canvas.create_window((0, 0), window=frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
-
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
-
         canvas.bind_all("<MouseWheel>",
                         lambda e: canvas.yview_scroll(-1 * (e.delta // 120), "units"))
-
         return frame
-
     def clear_window(self):
         for w in self.root.winfo_children():
             w.destroy()
@@ -100,7 +91,6 @@ class AuthenticationGUI:
                   fg=self.colors['bg'], font=("Segoe UI", 12, "bold"),
                   command=self.handle_login).pack(fill="x", ipady=10, pady=10)
 
-        # Forgot password link
         forgot_link = tk.Label(form, text="🔑 Forgot Password?",
                                font=("Segoe UI", 9, "underline"),
                                bg=self.colors['card'],

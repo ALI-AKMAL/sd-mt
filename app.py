@@ -10,6 +10,7 @@ try:
     from .process_tab import ProcessTabMixin
     from .settings_tab import SettingsTabMixin
     from .keyboard_tab import KeyboardTabMixin
+    from .new_tab import NewTabMixin
 except ImportError:
     # Fallback when running app.py directly
     from cleanup_tab import CleanupTabMixin
@@ -18,13 +19,15 @@ except ImportError:
     from process_tab import ProcessTabMixin
     from settings_tab import SettingsTabMixin
     from keyboard_tab import KeyboardTabMixin
+    from new_tab import NewTabMixin
 class SystemMonitorUI(
     SettingsTabMixin,
     ProcessTabMixin,
     CleanupTabMixin,
     HardwareTabMixin,
     MonitoringTabMixin,
-    KeyboardTabMixin
+    KeyboardTabMixin,
+    NewTabMixin
 ):
     COLORS = {
     'bg_dark': '#202020',       
@@ -329,6 +332,7 @@ class SystemMonitorUI(
         self.create_process_tab()
         self.create_keyboard_tab()
         self.create_settings_tab()
+        self.create_new_tab()
         
         def on_tab_configure(event):
             # Calculate width per tab (divide available width by number of tabs)
