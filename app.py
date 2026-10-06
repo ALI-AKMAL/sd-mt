@@ -10,6 +10,7 @@ try:
     from .process_tab import ProcessTabMixin
     from .settings_tab import SettingsTabMixin
     from .keyboard_tab import KeyboardTabMixin
+    from .new_tab import NewTabMixin
 except ImportError:
     # Fallback when running app.py directly
     from cleanup_tab import CleanupTabMixin
@@ -18,13 +19,15 @@ except ImportError:
     from process_tab import ProcessTabMixin
     from settings_tab import SettingsTabMixin
     from keyboard_tab import KeyboardTabMixin
+    from new_tab import NewTabMixin
 class SystemMonitorUI(
     SettingsTabMixin,
     ProcessTabMixin,
     CleanupTabMixin,
     HardwareTabMixin,
     MonitoringTabMixin,
-    KeyboardTabMixin
+    KeyboardTabMixin,
+    NewTabMixin
 ):
     COLORS = {
     'bg_dark': '#202020',       
@@ -76,12 +79,10 @@ class SystemMonitorUI(
         self._monitor_update_pending = False
         self._alert_state = {}
         self._toast_widgets = []
-        # Theme and settings
-        self.current_theme = 'dark'  # default theme
-        self.update_interval = 500  # milliseconds
+        self.current_theme = 'dark'  
+        self.update_interval = 500
         self.auto_start_monitoring = True
         self.show_notifications = True
-        # Data storage for graphs (keep last 60 data points = 30 seconds)
         self.max_data_points = 60
         self.cpu_data = deque([0] * self.max_data_points, maxlen=self.max_data_points)
         self.mem_data = deque([0] * self.max_data_points, maxlen=self.max_data_points)
@@ -89,12 +90,8 @@ class SystemMonitorUI(
         self.net_down_data = deque([0] * self.max_data_points, maxlen=self.max_data_points)
         self.net_up_data = deque([0] * self.max_data_points, maxlen=self.max_data_points)
         self.load_user_settings()
-
-        # Setup window
         self.setup_window()
-        # Create UI
         self.create_ui()
-        # Start monitoring
         if self.auto_start_monitoring:
             self.start_monitoring()
         else:
@@ -163,13 +160,10 @@ class SystemMonitorUI(
             print(f"Could not show toast: {e}")
 
     def _dispatch_alert(self, key, message, is_error, active):
-         
         if not self.show_notifications:
             return
-
         now = time.time()
         state = self._alert_state.get(key, {'active': False, 'last_sent': 0.0})
-
         if active:
             should_send = (not state['active']) or (now - state['last_sent'] >= self.ALERT_COOLDOWN_SECONDS)
             if should_send:
@@ -185,29 +179,18 @@ class SystemMonitorUI(
                 self.show_toast(f"{message} resolved", error=False , duration_ms=6000)
                 state['last_sent'] = now
             state['active'] = False
-
         self._alert_state[key] = state
 
     def check_alerts(self, cpu, mem, disk, down_mbps, up_mbps):
         total_net = down_mbps + up_mbps
-
-        # CPU alerts
         self._dispatch_alert('cpu_high', f"ALERT: CPU high ({cpu:.1f}%)", True, cpu >= 20.0)
         self._dispatch_alert('cpu_critical', f"CRITICAL: CPU very high ({cpu:.1f}%)", True, cpu >= 95.0)
-
-        # Memory alerts
         self._dispatch_alert('mem_high', f"ALERT: Memory high ({mem:.1f}%)", True, mem >= 85.0)
         self._dispatch_alert('mem_critical', f"CRITICAL: Memory very high ({mem:.1f}%)", True, mem >= 95.0)
-
-        # Disk alerts
         self._dispatch_alert('disk_high', f"ALERT: Disk usage high ({disk:.1f}%)", True, disk >= 90.0)
         self._dispatch_alert('disk_critical', f"CRITICAL: Disk almost full ({disk:.1f}%)", True, disk >= 97.0)
-
-        # Network alerts
         self._dispatch_alert('net_active', f"INFO: Network active ({total_net:.1f} Mbps)", False, total_net >= 50.0)
         self._dispatch_alert('net_heavy', f"ALERT: Network heavy ({total_net:.1f} Mbps)", True, total_net >= 100.0)
-
-        # Combined pressure alert
         self._dispatch_alert(
             'system_pressure',
             f"CRITICAL: System pressure high (CPU {cpu:.1f}% / RAM {mem:.1f}%)",
@@ -216,38 +199,31 @@ class SystemMonitorUI(
         )
 
     def load_user_settings(self):
-       
         try:
             if not self.db_manager or not self.current_user:
                 return
             user_id = self.current_user.get('user_id') if isinstance(self.current_user, dict) else None
             if not user_id:
                 return
-
             settings = self.db_manager.get_user_settings(user_id)
             self.current_theme = settings.get('theme', 'dark')
             self.update_interval = int(settings.get('update_interval', 500))
             self.auto_start_monitoring = bool(settings.get('auto_start_monitoring', True))
             self.show_notifications = bool(settings.get('show_notifications', True))
-
             if self.current_theme == 'light':
                 self.COLORS = self.COLORS_LIGHT.copy()
         except Exception as e:
             print(f'Could not load user settings: {e}')
 
     def setup_window(self):
-      
         self.root.title("System Monitor - Live Graphs Edition")
         self.root.geometry("1000x750")
         self.root.minsize(900, 650)
         self.root.configure(bg=self.COLORS['bg_dark'])
-        # Center window
         self.center_window()
-        # Handle window close 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def center_window(self):
-        
         self.root.update_idletasks()
         width = self.root.winfo_width()
         height = self.root.winfo_height()
@@ -264,7 +240,6 @@ class SystemMonitorUI(
         header = tk.Frame(self.root, bg=self.COLORS['bg_dark'], height=70)
         header.pack(fill='x', padx=0, pady=0)
         header.pack_propagate(False)
-        # Title
         title_label = tk.Label(
             header,
             text="⚡ System Monitor",
@@ -275,14 +250,10 @@ class SystemMonitorUI(
         title_label.pack(pady=15)
 
     def create_notebook(self):
-        
-        # Container
         notebook_container = tk.Frame(self.root, bg=self.COLORS['bg_dark'])
         notebook_container.pack(fill='both', expand=True, padx=20, pady=10)
-        # Create notebook
         style = ttk.Style()
         style.theme_use('default')
-        # Configure notebook to expand tabs
         style.configure(
             'Custom.TNotebook',
             background=self.COLORS['bg_dark'],
@@ -304,7 +275,6 @@ class SystemMonitorUI(
             foreground=[('selected', self.COLORS['accent'])],
             expand=[('selected', [1, 1, 1])]
         )
-        # Layout to make tabs fill entire width
         style.layout('Custom.TNotebook.Tab', [
             ('Notebook.tab', {
                 'sticky': 'nswe',
@@ -329,9 +299,9 @@ class SystemMonitorUI(
         self.create_process_tab()
         self.create_keyboard_tab()
         self.create_settings_tab()
+        self.create_new_tab()  
         
         def on_tab_configure(event):
-            # Calculate width per tab (divide available width by number of tabs)
             num_tabs = self.notebook.index('end')
             if num_tabs > 0:
                 tab_width = event.width // num_tabs
@@ -360,9 +330,7 @@ class SystemMonitorUI(
         self.update_label.pack(side='right', padx=25, pady=12)
 
     def start_monitoring(self):
-        """Start monitoring in background"""
         def _next_sleep():
-            # Keep UI smooth by capping redraw pressure even if user picks very low intervals.
             return max(0.35, self.update_interval / 1000.0)
 
         def monitor_loop():
@@ -451,13 +419,10 @@ class SystemMonitorUI(
             self.net_status_label.config(text="Status: Active", fg=self.COLORS['warning'])
         else:
             self.net_status_label.config(text="Status: Heavy Usage", fg=self.COLORS['danger'])
-        # Update total data
         self.net_total_label.config(text=f"Total: ↓ {total_down_gb:.2f} GB | ↑ {total_up_gb:.2f} GB")
-        # Update time
         self.update_label.config(text=f"Last update: {time.strftime('%H:%M:%S')}")
 
     def on_closing(self):
-        
         self.running = False
         try:
             self.root.unbind_all("<MouseWheel>")

@@ -303,6 +303,18 @@ class DatabaseManager:
         except Exception as e:
             print(f'Error loading settings: {e}')
             return defaults
+    # def get_all_usernames(self):
+   
+    #     try:
+    #         conn = sqlite3.connect(self.db_name)
+    #         cursor = conn.cursor()
+    #         cursor.execute('SELECT username, full_name, created_at FROM users')
+    #         rows = cursor.fetchall()
+    #         conn.close()
+    #         return [{'username': row[0], 'full_name': row[1], 'created_at': row[2]} for row in rows]
+    #     except Exception as e:
+    #         print(f"Error fetching users: {e}")
+    #         return []
 
     def save_user_settings(self, user_id, theme, update_interval,
                            auto_start_monitoring, show_notifications):
