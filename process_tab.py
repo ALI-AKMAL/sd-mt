@@ -134,6 +134,8 @@ class ProcessTabMixin:
         canvas.configure(yscrollcommand=scrollbar.set)
 
         def on_mousewheel(event):
+            if not canvas.winfo_ismapped():
+                return
             if getattr(event, 'num', None) == 4:
                 step = -1
             elif getattr(event, 'num', None) == 5:
@@ -155,15 +157,14 @@ class ProcessTabMixin:
             canvas.unbind_all('<Button-5>')
         for widget in (tab, canvas, self.process_list_frame):
             widget.bind('<Enter>', bind_mousewheel)
-            widget.bind('<Leave>', unbind_mousewheel)
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
         self.load_processes()
+
     def schedule_search_processes(self):
-        """Debounce search input to prevent lag while typing."""
         if self._process_search_after_id:
             self.root.after_cancel(self._process_search_after_id)
-        self._process_search_after_id = self.root.after(300, self.search_processes)
+        self._process_search_after_id = self.root.after(500, self.search_processes)
     def load_processes(self):
         if self._process_loading:
             return
@@ -205,7 +206,6 @@ class ProcessTabMixin:
         self.process_refresh_btn.config(state='normal', text='Refresh')
 
     def display_processes(self, processes, summary, request_id=None):
-        """Display process list."""
         if request_id is not None and request_id != self._process_request_id:
             return
 
@@ -218,7 +218,6 @@ class ProcessTabMixin:
         self._render_process_rows(processes, 0)
 
     def _render_process_rows(self, processes, start_index):
-        """Render rows in chunks to keep UI smooth."""
         chunk_size = 50
         end_index = min(start_index + chunk_size, len(processes))
 
@@ -231,12 +230,9 @@ class ProcessTabMixin:
             self._finish_process_loading()
 
     def create_process_row(self, proc, index):
-        """Create a single process row."""
         bg_color = self.COLORS['bg_light'] if index % 2 == 0 else self.COLORS['bg_medium']
-
         row = tk.Frame(self.process_list_frame, bg=bg_color)
         row.pack(fill='x', pady=1)
-
         tk.Label(
             row,
             text=str(proc['pid']),
@@ -250,7 +246,6 @@ class ProcessTabMixin:
         name_text = proc['name']
         if proc['is_critical']:
             name_text = f"! {name_text}"
-
         tk.Label(
             row,
             text=name_text,
@@ -266,7 +261,6 @@ class ProcessTabMixin:
             cpu_color = self.COLORS['warning']
         if proc['cpu_percent'] > 80:
             cpu_color = self.COLORS['danger']
-
         tk.Label(
             row,
             text=f"{proc['cpu_percent']:.1f}%",
@@ -313,7 +307,6 @@ class ProcessTabMixin:
 
     def kill_process(self, pid, name, is_critical):
         from tkinter import messagebox
-
         if is_critical:
             result = messagebox.askyesno(
                 'Critical Process Warning',
@@ -347,7 +340,6 @@ class ProcessTabMixin:
         threading.Thread(target=kill_thread, daemon=True).start()
 
     def handle_kill_result(self, result):
-        """Handle process termination result."""
         if result['success']:
             self.show_notification('[OK] ' + result['message'], error=False)
             self.root.after(800, self.refresh_processes)
@@ -369,6 +361,7 @@ class ProcessTabMixin:
             try:
                 results = self.process_manager.search_processes(query)
                 summary = self.process_manager.get_system_summary()
+                self._last_summary = summary 
                 self.root.after(0, self.display_processes, results, summary, request_id)
             except Exception as e:
                 self.root.after(0, self._handle_process_error, f'Search error: {e}')

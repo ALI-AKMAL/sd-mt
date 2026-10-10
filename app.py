@@ -10,24 +10,20 @@ try:
     from .process_tab import ProcessTabMixin
     from .settings_tab import SettingsTabMixin
     from .keyboard_tab import KeyboardTabMixin
-    from .new_tab import NewTabMixin
 except ImportError:
-    # Fallback when running app.py directly
     from cleanup_tab import CleanupTabMixin
     from hardware_tab import HardwareTabMixin
     from monitoring_tab import MonitoringTabMixin
     from process_tab import ProcessTabMixin
     from settings_tab import SettingsTabMixin
     from keyboard_tab import KeyboardTabMixin
-    from new_tab import NewTabMixin
 class SystemMonitorUI(
     SettingsTabMixin,
     ProcessTabMixin,
     CleanupTabMixin,
     HardwareTabMixin,
     MonitoringTabMixin,
-    KeyboardTabMixin,
-    NewTabMixin
+    KeyboardTabMixin
 ):
     COLORS = {
     'bg_dark': '#202020',       
@@ -79,7 +75,7 @@ class SystemMonitorUI(
         self._monitor_update_pending = False
         self._alert_state = {}
         self._toast_widgets = []
-        self.current_theme = 'dark'  
+        self.current_theme = 'white'  
         self.update_interval = 500
         self.auto_start_monitoring = True
         self.show_notifications = True
@@ -98,7 +94,6 @@ class SystemMonitorUI(
             self.status_label.config(text='Monitoring Paused (Auto-start disabled)', fg=self.COLORS['warning'])
 
     def show_toast(self, message, error=True, duration_ms=4000):
-        
         try:
             toast = tk.Toplevel(self.root)
             toast.overrideredirect(True)   
@@ -183,7 +178,7 @@ class SystemMonitorUI(
 
     def check_alerts(self, cpu, mem, disk, down_mbps, up_mbps):
         total_net = down_mbps + up_mbps
-        self._dispatch_alert('cpu_high', f"ALERT: CPU high ({cpu:.1f}%)", True, cpu >= 20.0)
+        self._dispatch_alert('cpu_high', f"ALERT: CPU high ({cpu:.1f}%)", True, cpu >= 85.0)
         self._dispatch_alert('cpu_critical', f"CRITICAL: CPU very high ({cpu:.1f}%)", True, cpu >= 95.0)
         self._dispatch_alert('mem_high', f"ALERT: Memory high ({mem:.1f}%)", True, mem >= 85.0)
         self._dispatch_alert('mem_critical', f"CRITICAL: Memory very high ({mem:.1f}%)", True, mem >= 95.0)
@@ -299,7 +294,6 @@ class SystemMonitorUI(
         self.create_process_tab()
         self.create_keyboard_tab()
         self.create_settings_tab()
-        self.create_new_tab()  
         
         def on_tab_configure(event):
             num_tabs = self.notebook.index('end')
@@ -338,13 +332,11 @@ class SystemMonitorUI(
                 try:
                     cpu, mem, disk = self.monitor.get_usage()
                     down_mbps, up_mbps, total_down_gb, total_up_gb = self.monitor.get_network_usage()
-                    
                     self.cpu_data.append(cpu)
                     self.mem_data.append(mem)
                     self.disk_data.append(disk)
                     self.net_down_data.append(down_mbps)
                     self.net_up_data.append(up_mbps)
-                    
                     if not self._monitor_update_pending:
                         self._monitor_update_pending = True
                         self.root.after(
@@ -366,7 +358,6 @@ class SystemMonitorUI(
         thread.start()
 
     def update_monitoring(self, cpu, mem, disk, down_mbps, up_mbps, total_down_gb, total_up_gb):
-    
         self._monitor_update_pending = False
         self.check_alerts(cpu, mem, disk, down_mbps, up_mbps)
        
@@ -375,7 +366,7 @@ class SystemMonitorUI(
         if cpu < 50:
             self.cpu_status_label.config(text="Status: Normal", fg=self.COLORS['success'])
             self.cpu_percent_label.config(fg=self.COLORS['success'])
-        elif cpu < 80:
+        elif cpu < 85:
             self.cpu_status_label.config(text="Status: High", fg=self.COLORS['warning'])
             self.cpu_percent_label.config(fg=self.COLORS['warning'])
         else:
@@ -387,7 +378,7 @@ class SystemMonitorUI(
         if mem < 50:
             self.mem_status_label.config(text="Status: Normal", fg=self.COLORS['success'])
             self.mem_percent_label.config(fg=self.COLORS['success'])
-        elif mem < 80:
+        elif mem < 85:
             self.mem_status_label.config(text="Status: High", fg=self.COLORS['warning'])
             self.mem_percent_label.config(fg=self.COLORS['warning'])
         else:

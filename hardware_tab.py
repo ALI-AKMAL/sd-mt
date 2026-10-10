@@ -32,7 +32,6 @@ class HardwareTabMixin:
         )
         refresh_btn.pack(side='right')
         
-        # Text display
         text_frame = tk.Frame(tab, bg=self.COLORS['bg_medium'])
         text_frame.pack(fill='both', expand=True, padx=20, pady=(0, 20))
         
@@ -48,12 +47,10 @@ class HardwareTabMixin:
             wrap='word'
         )
         self.hardware_text.pack(fill='both', expand=True)
-        
         # Configure tags
-        self.hardware_text.tag_config('header', foreground=self.COLORS['accent'], font=('Consolas', 11, 'bold'), justify='center')
-        self.hardware_text.tag_config('label', foreground=self.COLORS['text_dim'] , justify='center')
-        self.hardware_text.tag_config('value', foreground=self.COLORS['text'], font=('Consolas', 10, 'bold') , justify='center')
-        # Load hardware info
+        self.hardware_text.tag_config('header', foreground=self.COLORS['accent'], font=('Consolas', 11, 'bold'), justify='left')
+        self.hardware_text.tag_config('label', foreground=self.COLORS['text_dim'] , justify='left')
+        self.hardware_text.tag_config('value', foreground=self.COLORS['text'], font=('Consolas', 10, 'bold') , justify='left')
         self.load_hardware_info()
 
     def load_hardware_info(self):
@@ -69,7 +66,6 @@ class HardwareTabMixin:
         thread.start()
 
     def display_hardware_info(self, info):
-        
         self.hardware_text.delete('1.0', tk.END)
         def add_line(text, tag='value'):
             self.hardware_text.insert(tk.END, text + '\n', tag)

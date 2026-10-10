@@ -30,23 +30,19 @@ class ProcessManager:
                     pinfo['cpu_percent'] = proc.cpu_percent(interval=None)
                     pinfo['memory_mb'] = proc.memory_info().rss / (1024 * 1024)
                     pinfo['memory_percent'] = proc.memory_percent()
-                    
                     try:
                         pinfo['num_threads'] = proc.num_threads()
                     except:
                         pinfo['num_threads'] = 0
-                    
                     try:
                         pinfo['create_time'] = datetime.fromtimestamp(proc.create_time())
                     except:
                         pinfo['create_time'] = None
 
                 pinfo['is_critical'] = self.is_critical_process(pinfo['name'], pinfo['pid'])
-        
                 processes.append(pinfo)
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 continue
-        # Sort processes
         if sort_by == 'cpu':
             processes.sort(key=lambda x: x['cpu_percent'], reverse=True)
         elif sort_by == 'memory':
@@ -55,14 +51,12 @@ class ProcessManager:
             processes.sort(key=lambda x: x['name'].lower())
         elif sort_by == 'pid':
             processes.sort(key=lambda x: x['pid'])
-        # Apply limit
         if limit:
             processes = processes[:limit]
         return processes
     def get_process_details(self, pid):
         try:
             proc = psutil.Process(pid)
-            
             with proc.oneshot():
                 details = {
                     'pid': proc.pid,
@@ -80,19 +74,15 @@ class ProcessManager:
                     details['exe'] = proc.exe()
                 except:
                     details['exe'] = 'N/A'
-                
                 try:
                     details['cwd'] = proc.cwd()
                 except:
                     details['cwd'] = 'N/A'
-                
                 try:
                     details['cmdline'] = ' '.join(proc.cmdline())
                 except:
                     details['cmdline'] = 'N/A'
-                
                 return details
-        
         except psutil.NoSuchProcess:
             return None
         except psutil.AccessDenied:
@@ -101,7 +91,6 @@ class ProcessManager:
             return {'error': str(e)}
     
     def is_critical_process(self, process_name, pid=None):
-        
         if not process_name:
             return False
         name_lower = process_name.lower()
@@ -114,7 +103,6 @@ class ProcessManager:
         return False
     
     def terminate_process(self, pid, force=False):
-        
         try:
             proc = psutil.Process(pid)
             proc_name = proc.name()
@@ -160,7 +148,6 @@ class ProcessManager:
        
         try:
             proc = psutil.Process(pid)
-            
             tree = {
                 'process': {
                     'pid': proc.pid,
@@ -169,8 +156,6 @@ class ProcessManager:
                 'parent': None,
                 'children': []
             }
-            
-            # Get parent
             try:
                 parent = proc.parent()
                 if parent:
@@ -180,7 +165,6 @@ class ProcessManager:
                     }
             except:
                 pass
-            # Get children
             try:
                 children = proc.children(recursive=False)
                 for child in children:
@@ -192,7 +176,6 @@ class ProcessManager:
                 pass
             
             return tree
-        
         except Exception as e:
             return {'error': str(e)}
     def get_system_summary(self):
@@ -215,7 +198,6 @@ class ProcessManager:
                 'stopped': 0,
                 'error': str(e)
             }
-    
     def search_processes(self, query):
         query_lower = query.lower()
         matching = []
@@ -228,33 +210,4 @@ class ProcessManager:
                     matching.append(pinfo)
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
-        
         return matching
-def main():
-
-    print("=" * 80)
-    print("Process Manager Test")
-    print("=" * 80)
-    print()
-    pm = ProcessManager()
-    # System summary
-    print("System Summary:")
-    summary = pm.get_system_summary()
-    print(f"  Total Processes: {summary['total']}")
-    print(f"  Running: {summary['running']}")
-    print(f"  Sleeping: {summary['sleeping']}")
-    print()
-    # Top 10 CPU-consuming processes
-    print("Top 10 Processes by CPU:")
-    processes = pm.get_all_processes(sort_by='cpu', limit=10)
-    print(f"{'PID':<8} {'Name':<30} {'CPU%':<10} {'Memory (MB)':<12} {'Critical'}")
-    print("-" * 80)
-    for proc in processes:
-        critical_mark = "⚠️ YES" if proc['is_critical'] else "   No"
-        print(f"{proc['pid']:<8} {proc['name']:<30} {proc['cpu_percent']:<10.2f} "
-              f"{proc['memory_mb']:<12.2f} {critical_mark}")
-    print("\n" + "=" * 80)
-    print("NOTE: Critical processes show ⚠️ warning before termination")
-    print("=" * 80)
-if __name__ == "__main__":
-    main()
