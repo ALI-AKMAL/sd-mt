@@ -75,7 +75,7 @@ class SystemMonitorUI(
         self._monitor_update_pending = False
         self._alert_state = {}
         self._toast_widgets = []
-        self.current_theme = 'white'  
+        self.current_theme = 'dark'  
         self.update_interval = 500
         self.auto_start_monitoring = True
         self.show_notifications = True

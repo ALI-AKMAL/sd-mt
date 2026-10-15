@@ -31,9 +31,5 @@
   # Output: [1, 2, 3, 4, 5]
 
 
-a = [1, 2, 3, 4]
-b =[3, 4, 5]
-s = a+b
-print(f"Combined list: {s}")
-unique_elements = list(dict.fromkeys(s))
-print(f"Unique elements: {unique_elements}")
+
+    

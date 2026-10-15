@@ -127,11 +127,9 @@ class HardwareTabMixin:
             add_line(f"Time Remaining:   {battery['time_remaining_formatted']}")
         else:
             add_line("No battery detected (Desktop PC)")
-        
         self.hardware_text.config(state='disabled')
 
     def refresh_hardware_info(self):
-        
         self.hardware.clear_cache()
         self.hardware_text.config(state='normal')
         self.hardware_text.delete('1.0', tk.END)

@@ -107,7 +107,6 @@ class ProcessManager:
             proc = psutil.Process(pid)
             proc_name = proc.name()
             is_critical = self.is_critical_process(proc_name, pid)
-            # Terminate or kill
             if force:
                 proc.kill()
                 action = 'killed'
@@ -178,6 +177,7 @@ class ProcessManager:
             return tree
         except Exception as e:
             return {'error': str(e)}
+        
     def get_system_summary(self):
         try:
             processes = list(psutil.process_iter(['pid', 'name']))
